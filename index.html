@@ -1,0 +1,3585 @@
+Inspired by Avō<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Meal Planner</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #388E3C;
+            --primary-light: #C8E6C9;
+            --accent: #FF5722;
+            --text: #212121;
+            --text-secondary: #757575;
+            --background: #f5f5f5;
+            --card: #ffffff;
+            --border: #BDBDBD;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        
+        .app-logo {
+            height: 160px;
+            margin-right: 20px;
+            vertical-align: middle;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .app-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .app-slogan {
+            font-size: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-style: italic;
+            margin-top: -5px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background-color: var(--card);
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-title {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .btn-accent {
+            background-color: var(--accent);
+        }
+        
+        .btn-accent:hover {
+            background-color: #E64A19;
+        }
+        
+        .inventory-list {
+            margin-top: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .inventory-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .inventory-item:last-child {
+            border-bottom: none;
+        }
+        
+        .inventory-item-details {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .inventory-item-name {
+            font-weight: 500;
+        }
+        
+        .inventory-item-meta {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .expiring-soon {
+            color: var(--accent);
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-pill {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-pill.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .recipe-card {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .recipe-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .recipe-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .recipe-ingredients {
+            margin-bottom: 0.75rem;
+        }
+        
+        .recipe-ingredient {
+            display: inline-block;
+            background-color: var(--primary-light);
+            border-radius: 4px;
+            padding: 0.3rem 0.6rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+        
+        .expiring-ingredient {
+            background-color: #FFECB3;
+            color: #FF8F00;
+        }
+        
+        .recipe-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            background-color: #f0f0f0;
+        }
+        
+        .inspiration-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            position: relative;
+            min-height: 150px;
+        }
+        
+        .bubble-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            justify-content: center;
+        }
+        
+        .bubble-button {
+            background-color: var(--primary-light);
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 50px;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .bubble-button:nth-child(1) {
+            background-color: #f8d7da;
+            color: #721c24;
+            animation-delay: 0s;
+        }
+        
+        .bubble-button:nth-child(2) {
+            background-color: #d4edda;
+            color: #155724;
+            animation-delay: 0.6s;
+        }
+        
+        .bubble-button:nth-child(3) {
+            background-color: #cce5ff;
+            color: #004085;
+            animation-delay: 1.2s;
+        }
+        
+        .bubble-button:nth-child(4) {
+            background-color: #fff3cd;
+            color: #856404;
+            animation-delay: 1.8s;
+        }
+        
+        .bubble-button:nth-child(5) {
+            background-color: #d1c4e9;
+            color: #4527a0;
+            animation-delay: 2.4s;
+        }
+        
+        .bubble-button:hover {
+            transform: scale(1.05);
+            filter: brightness(1.1);
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+            100% {
+                transform: translateY(0px);
+            }
+        }
+        
+        @keyframes color-change {
+            0% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(15deg); }
+            100% { filter: hue-rotate(0deg); }
+        }
+        
+        .bubble-button {
+            animation: float 3s ease-in-out infinite, color-change 5s ease-in-out infinite;
+        }
+        
+        .shopping-list {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .shopping-list-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .shopping-list-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="header-left">
+                    <img src="AVO app v3.png" alt="AVO Logo" class="app-logo">
+                    <div>
+                        <div class="app-title">Smart Meal Planner</div>
+                        <div class="app-slogan">No Avōcado Left Behind</div>
+                    </div>
+                </div>
+                <button id="settingsBtn" class="btn btn-secondary">
+                    <span>⚙️</span> Settings
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="main-content">
+            <div class="left-column">
+                <div class="card">
+                    <div class="card-title">
+                        <span class="material-icons"> </span>
+                        Receipt Scanner
+                    </div>
+                    <div id="uploadArea" class="upload-area">
+                        <div class="upload-icon">📷</div>
+                        <p>Drag & drop your receipt photo or click to upload</p>
+                        <p class="upload-subtitle">We'll automatically extract and categorize your groceries</p>
+                        <input type="file" id="receiptUpload" accept="image/*" style="display: none">
+                    </div>
+                    <div id="scanProgress" class="hidden">
+                        <p>Scanning receipt...</p>
+                        <div id="progressBar" style="height: 5px; width: 0%; background-color: var(--primary); margin: 10px 0; transition: width 0.5s ease;"></div>
+                    </div>
+                    <div id="scanResults" class="hidden">
+                        <p>Found <span id="itemCount">0</span> items on your receipt</p>
+                        <button id="addToInventory" class="btn">Add to inventory</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span class="material-icons"> </span>
+                        Inventory Management
+                    </div>
+                    <div class="tabs">
+                        <div class="tab active" data-tab="allItems">All Items</div>
+                        <div class="tab" data-tab="expiring">Expiring Soon</div>
+                        <div class="tab" data-tab="categories">Categories</div>
+                    </div>
+                    <input type="text" id="inventorySearch" class="search-box" placeholder="Search your inventory...">
+                    <div class="filter-bar">
+                        <div class="filter-pill active" data-filter="all">All</div>
+                        <div class="filter-pill" data-filter="produce">Produce</div>
+                        <div class="filter-pill" data-filter="dairy">Dairy</div>
+                        <div class="filter-pill" data-filter="protein">Protein</div>
+                        <div class="filter-pill" data-filter="grains">Grains</div>
+                        <div class="filter-pill" data-filter="other">Other</div>
+                    </div>
+                    <div id="inventoryList" class="inventory-list">
+                        <!-- Inventory items will be added here -->
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <button id="addManually" class="btn btn-secondary">
+                            <span class="material-icons"> </span> Add Item Manually
+                        </button>
+                        <button id="combineItems" class="btn btn-secondary" style="margin-left: 10px;">
+                            <span class="material-icons"> </span> Combine Similar Items
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-column">
+                <div class="card">
+                    <div class="card-title">
+                        <span class="material-icons"> </span>
+                        Avō, Your Food Vibe
+                    </div>
+                    <p>Smart recipes based on your current inventory and expiring items</p>
+                    <div id="recipeList" style="margin-top: 1rem;">
+                        <!-- Recipe suggestions will be added here -->
+                    </div>
+                    <button id="generateMoreRecipes" class="btn btn-accent">
+                        Generate More Recipes
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span class="material-icons"> </span>
+                        Inspired by Avō
+                    </div>
+                    <p>Discover new recipes and get personalized grocery lists based on your preferences</p>
+                    
+                    <div class="bubble-container" id="bubbleButtons">
+                        <button class="bubble-button" data-category="body-builder">Body Builder</button>
+                        <button class="bubble-button" data-category="weight-control">Weight Control</button>
+                        <button class="bubble-button" data-category="kids-nutrition">Kids Nutrition</button>
+                        <button class="bubble-button" data-category="grandmoms-secret">Grandmom's Secret</button>
+                        <button class="bubble-button" data-category="everything-fried">Everything Fried</button>
+                    </div>
+                    
+                    <div style="margin-top: 1.5rem;">
+                        <div style="display: flex; gap: 10px; margin-bottom: 1rem;">
+                            <input type="text" id="customAvoPrompt" class="form-control" placeholder="Enter your custom recipe prompt" style="flex: 1; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+                            <button id="generateCustomAvo" class="btn btn-accent">Generate your Avō</button>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-secondary);">Try "low sugar desserts" or "quick dinner for 2" or leave empty for time-based suggestions!</p>
+                    </div>
+                    
+                    <div id="inspirationRecipeContainer" style="display: none;">
+                        <div id="inspirationRecipes"></div>
+                        <button id="backToBubbles" class="btn btn-secondary" style="margin-top: 1rem;">
+                            Back to Categories
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span class="material-icons"> </span>
+                        Saved Recipes
+                    </div>
+                    <div id="savedRecipesList">
+                        <p id="noSavedRecipes">You haven't saved any recipes yet. When you find a recipe you like, click "Save Recipe" to add it here.</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span class="material-icons"> </span>
+                        Shopping List
+                    </div>
+                    <div id="shoppingListContainer">
+                        <p id="noShoppingItems" style="display: block;">Your shopping list is empty. Add items you plan to buy.</p>
+                        <div id="shoppingItems"></div>
+                        <div style="margin-top: 1rem;">
+                            <button id="addShoppingItemBtn" class="btn btn-accent">
+                                Add Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for adding items manually -->
+    <div id="addItemModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background-color: white; max-width: 500px; margin: 100px auto; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Add Item Manually</h2>
+            <form id="addItemForm">
+                <div style="margin-bottom: 1rem;">
+                    <label for="itemName" style="display: block; margin-bottom: 0.5rem;">Item Name</label>
+                    <input type="text" id="itemName" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="itemCategory" style="display: block; margin-bottom: 0.5rem;">Category</label>
+                    <select id="itemCategory" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+                        <option value="produce">Produce</option>
+                        <option value="dairy">Dairy</option>
+                        <option value="protein">Protein</option>
+                        <option value="grains">Grains</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="itemQuantity" style="display: block; margin-bottom: 0.5rem;">Quantity</label>
+                    <input type="number" id="itemQuantity" min="1" value="1" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label for="expirationDate" style="display: block; margin-bottom: 0.5rem;">Expiration Date (optional)</label>
+                    <input type="date" id="expirationDate" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                    <button type="button" id="cancelAddItem" class="btn btn-secondary">Cancel</button>
+                    <button type="submit" class="btn">Add Item</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background-color: white; max-width: 500px; margin: 100px auto; padding: 2rem; border-radius: 8px;">
+            <h2 style="margin-bottom: 1rem;">Settings</h2>
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Receipt Processing Method</h3>
+                <div style="display: flex; gap: 1rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="processingMethod" value="simulation" checked> 
+                        Simulation Mode
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="processingMethod" value="gemini"> 
+                        Gemini Vision API
+                    </label>
+                </div>
+            </div>
+            <div id="geminiSettings" style="margin-bottom: 1.5rem; display: none;">
+                <label for="geminiApiKey" style="display: block; margin-bottom: 0.5rem;">Google Gemini API Key</label>
+                <input type="password" id="geminiApiKey" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" placeholder="Enter your Gemini API key">
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Your API key is stored locally in your browser and never sent to our servers.</p>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Recipe Generation</h3>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="recipeGenMethod" value="simulation" checked> 
+                        Simulation Mode
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="recipeGenMethod" value="gemini"> 
+                        Gemini AI
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem;">
+                        <input type="radio" name="recipeGenMethod" value="deepseek"> 
+                        DeepSeek Chat
+                    </label>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Using AI for recipe generation will create personalized recipes based on your current inventory and preferences.</p>
+            </div>
+            <div id="deepseekSettings" style="margin-bottom: 1.5rem; display: none;">
+                <label for="deepseekApiKey" style="display: block; margin-bottom: 0.5rem;">DeepSeek API Key</label>
+                <input type="password" id="deepseekApiKey" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" placeholder="Enter your DeepSeek API key">
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Your API key is stored locally in your browser and never sent to our servers.</p>
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Recipe Images</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label for="tavilyApiKey" style="display: block; margin-bottom: 0.5rem;">Tavily API Key</label>
+                    <input type="password" id="tavilyApiKey" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" placeholder="Enter your Tavily API key for recipe images">
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">Tavily is used to find relevant images for the generated recipes.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="enableRecipeImages" checked>
+                    <label for="enableRecipeImages">Enable recipe images</label>
+                </div>
+            </div>
+            
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 0.5rem; font-size: 1.1rem;">Recipe Preferences</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label for="preferredCuisine" style="display: block; margin-bottom: 0.5rem;">Preferred Cuisine</label>
+                    <select id="preferredCuisine" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;">
+                        <option value="">No Preference</option>
+                        <option value="italian">Italian</option>
+                        <option value="mexican">Mexican</option>
+                        <option value="asian">Asian</option>
+                        <option value="mediterranean">Mediterranean</option>
+                        <option value="indian">Indian</option>
+                        <option value="american">American</option>
+                        <option value="french">French</option>
+                        <option value="middle-eastern">Middle Eastern</option>
+                    </select>
+                </div>
+                
+                <div style="margin-top: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem;">Dietary Restrictions</label>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="vegetarian"> 
+                            Vegetarian
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="vegan"> 
+                            Vegan
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="glutenFree"> 
+                            Gluten Free
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="dairyFree"> 
+                            Dairy Free
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="nutFree"> 
+                            Nut Free
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                <button type="button" id="cancelSettings" class="btn btn-secondary">Cancel</button>
+                <button type="button" id="saveSettings" class="btn">Save Settings</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recipe Details Modal -->
+    <div id="recipeDetailsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000; overflow-y: auto;">
+        <div style="background-color: white; max-width: 800px; margin: 50px auto; padding: 2rem; border-radius: 8px; position: relative;">
+            <button id="closeRecipeDetails" style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.5rem; cursor: pointer;">×</button>
+            <h2 id="recipeDetailsTitle" style="margin-bottom: 1rem; color: var(--primary-dark);">Recipe Details</h2>
+            
+            <div class="recipe-details-content">
+                <div class="recipe-details-meta" style="display: flex; gap: 2rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <strong>Difficulty:</strong> <span id="recipeDetailsDifficulty"></span>
+                    </div>
+                    <div>
+                        <strong>Prep Time:</strong> <span id="recipeDetailsPrepTime"></span>
+                    </div>
+                    <div>
+                        <strong>Calories:</strong> <span id="recipeDetailsCalories"></span>
+                    </div>
+                    <div>
+                        <strong>Health Level:</strong> <span id="recipeDetailsHealth"></span>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <h3 style="color: var(--primary-dark); margin-bottom: 0.5rem;">Ingredients</h3>
+                    <div id="recipeDetailsIngredients"></div>
+                </div>
+                
+                <div style="margin-bottom: 1rem;">
+                    <h3 style="color: var(--primary-dark); margin-bottom: 0.5rem;">Instructions</h3>
+                    <div id="recipeDetailsLoading" style="text-align: center; padding: 2rem;">
+                        <p>Generating detailed instructions...</p>
+                        <div style="height: 5px; width: 0%; background-color: var(--primary); margin: 10px auto; transition: width 0.5s ease; max-width: 300px;" id="recipeDetailsProgress"></div>
+                    </div>
+                    <div id="recipeDetailsInstructions" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification">
+        Item added to inventory!
+    </div>
+
+    <script>
+        // Sample data for demonstration
+        const inventory = [
+            { id: 1, name: 'Milk', quantity: 1, category: 'dairy', expirationDate: '2023-11-15' },
+            { id: 2, name: 'Eggs', quantity: 12, category: 'protein', expirationDate: '2023-11-20' },
+            { id: 3, name: 'Spinach', quantity: 1, category: 'produce', expirationDate: '2023-11-10' },
+            { id: 4, name: 'Chicken Breast', quantity: 2, category: 'protein', expirationDate: '2023-11-12' },
+            { id: 5, name: 'Rice', quantity: 1, category: 'grains', expirationDate: '2024-05-30' },
+            { id: 6, name: 'Tomatoes', quantity: 5, category: 'produce', expirationDate: '2023-11-14' },
+            { id: 7, name: 'Cheese', quantity: 1, category: 'dairy', expirationDate: '2023-11-25' },
+            { id: 8, name: 'Bread', quantity: 1, category: 'grains', expirationDate: '2023-11-13' },
+        ];
+
+        const sampleRecipes = []; // Start with empty recipes array
+
+        const savedRecipes = [];
+        const shoppingList = []; // Global shopping list
+
+        // Object to store generated inspiration recipes by category (for caching)
+        const inspirationRecipesCache = {}; 
+
+        // DOM Elements
+        const uploadArea = document.getElementById('uploadArea');
+        const receiptUpload = document.getElementById('receiptUpload');
+        const scanProgress = document.getElementById('scanProgress');
+        const progressBar = document.getElementById('progressBar');
+        const scanResults = document.getElementById('scanResults');
+        const itemCount = document.getElementById('itemCount');
+        const addToInventory = document.getElementById('addToInventory');
+        const inventorySearch = document.getElementById('inventorySearch');
+        const inventoryList = document.getElementById('inventoryList');
+        const filterPills = document.querySelectorAll('.filter-pill');
+        const tabs = document.querySelectorAll('.tab');
+        const addManually = document.getElementById('addManually');
+        const combineItems = document.getElementById('combineItems');
+        const addItemModal = document.getElementById('addItemModal');
+        const addItemForm = document.getElementById('addItemForm');
+        const cancelAddItem = document.getElementById('cancelAddItem');
+        const recipeList = document.getElementById('recipeList');
+        const generateMoreRecipes = document.getElementById('generateMoreRecipes');
+        const savedRecipesList = document.getElementById('savedRecipesList');
+        const noSavedRecipes = document.getElementById('noSavedRecipes');
+        const notification = document.getElementById('notification');
+        
+        // Recipe Details Modal Elements
+        const recipeDetailsModal = document.getElementById('recipeDetailsModal');
+        const closeRecipeDetails = document.getElementById('closeRecipeDetails');
+        const recipeDetailsTitle = document.getElementById('recipeDetailsTitle');
+        const recipeDetailsDifficulty = document.getElementById('recipeDetailsDifficulty');
+        const recipeDetailsPrepTime = document.getElementById('recipeDetailsPrepTime');
+        const recipeDetailsCalories = document.getElementById('recipeDetailsCalories');
+        const recipeDetailsHealth = document.getElementById('recipeDetailsHealth');
+        const recipeDetailsIngredients = document.getElementById('recipeDetailsIngredients');
+        const recipeDetailsInstructions = document.getElementById('recipeDetailsInstructions');
+        const recipeDetailsLoading = document.getElementById('recipeDetailsLoading');
+        const recipeDetailsProgress = document.getElementById('recipeDetailsProgress');
+        
+        // Settings Elements
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const processingMethodRadios = document.getElementsByName('processingMethod');
+        const geminiSettings = document.getElementById('geminiSettings');
+        const deepseekSettings = document.getElementById('deepseekSettings');
+        const geminiApiKey = document.getElementById('geminiApiKey');
+        const deepseekApiKey = document.getElementById('deepseekApiKey');
+        const tavilyApiKey = document.getElementById('tavilyApiKey');
+        const enableRecipeImages = document.getElementById('enableRecipeImages');
+        const cancelSettings = document.getElementById('cancelSettings');
+        const saveSettings = document.getElementById('saveSettings');
+        
+        // Inspiration section elements
+        const bubbleButtons = document.getElementById('bubbleButtons');
+        const inspirationRecipeContainer = document.getElementById('inspirationRecipeContainer');
+        const inspirationRecipesElement = document.getElementById('inspirationRecipes');
+        const backToBubbles = document.getElementById('backToBubbles');
+        
+        // Shopping List Elements
+        const shoppingItems = document.getElementById('shoppingItems');
+        const addShoppingItemBtn = document.getElementById('addShoppingItemBtn');
+        const noShoppingItems = document.getElementById('noShoppingItems');
+        
+        // App Settings
+        let appSettings = {
+            processingMethod: 'simulation',
+            geminiApiKey: '',
+            recipeGenMethod: 'simulation',
+            tavilyApiKey: '',
+            enableRecipeImages: true,
+            deepseekApiKey: '',
+            preferredCuisine: '',
+            dietaryRestrictions: {
+                vegetarian: false,
+                vegan: false,
+                glutenFree: false,
+                dairyFree: false,
+                nutFree: false
+            }
+        };
+        
+        // Load settings from localStorage
+        function loadSettings() {
+            const savedSettings = localStorage.getItem('mealPlannerSettings');
+            if (savedSettings) {
+                appSettings = JSON.parse(savedSettings);
+                
+                // Apply loaded settings to UI
+                processingMethodRadios.forEach(radio => {
+                    if (radio.value === appSettings.processingMethod) {
+                        radio.checked = true;
+                    }
+                });
+                
+                document.getElementsByName('recipeGenMethod').forEach(radio => {
+                    if (radio.value === appSettings.recipeGenMethod) {
+                        radio.checked = true;
+                    }
+                });
+                
+                geminiApiKey.value = appSettings.geminiApiKey || '';
+                deepseekApiKey.value = appSettings.deepseekApiKey || '';
+                tavilyApiKey.value = appSettings.tavilyApiKey || '';
+                enableRecipeImages.checked = appSettings.enableRecipeImages !== false;
+                
+                // Load cuisine and dietary preferences
+                preferredCuisine.value = appSettings.preferredCuisine || '';
+                vegetarian.checked = appSettings.dietaryRestrictions.vegetarian || false;
+                vegan.checked = appSettings.dietaryRestrictions.vegan || false;
+                glutenFree.checked = appSettings.dietaryRestrictions.glutenFree || false;
+                dairyFree.checked = appSettings.dietaryRestrictions.dairyFree || false;
+                nutFree.checked = appSettings.dietaryRestrictions.nutFree || false;
+                
+                if (appSettings.processingMethod === 'gemini' || appSettings.recipeGenMethod === 'gemini') {
+                    geminiSettings.style.display = 'block';
+                }
+                
+                if (appSettings.recipeGenMethod === 'deepseek') {
+                    deepseekSettings.style.display = 'block';
+                }
+            }
+        }
+        
+        // Save settings to localStorage
+        function saveAppSettings() {
+            // Update cuisine and dietary preferences
+            appSettings.preferredCuisine = preferredCuisine.value;
+            appSettings.dietaryRestrictions = {
+                vegetarian: vegetarian.checked,
+                vegan: vegan.checked,
+                glutenFree: glutenFree.checked,
+                dairyFree: dairyFree.checked,
+                nutFree: nutFree.checked
+            };
+            
+            localStorage.setItem('mealPlannerSettings', JSON.stringify(appSettings));
+            
+            // Show notification
+            notification.textContent = 'Settings saved!';
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+            
+            settingsModal.style.display = 'none';
+        }
+        
+        // Toggle settings modal
+        settingsBtn.addEventListener('click', () => {
+            settingsModal.style.display = 'block';
+        });
+        
+        cancelSettings.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+            
+            // Reset the UI to match current settings
+            processingMethodRadios.forEach(radio => {
+                if (radio.value === appSettings.processingMethod) {
+                    radio.checked = true;
+                }
+            });
+            
+            document.getElementsByName('recipeGenMethod').forEach(radio => {
+                if (radio.value === appSettings.recipeGenMethod) {
+                    radio.checked = true;
+                }
+            });
+            
+            geminiApiKey.value = appSettings.geminiApiKey || '';
+            deepseekApiKey.value = appSettings.deepseekApiKey || '';
+            tavilyApiKey.value = appSettings.tavilyApiKey || '';
+            enableRecipeImages.checked = appSettings.enableRecipeImages !== false;
+            
+            if (appSettings.processingMethod === 'gemini' || appSettings.recipeGenMethod === 'gemini') {
+                geminiSettings.style.display = 'block';
+            } else {
+                geminiSettings.style.display = 'none';
+            }
+            
+            if (appSettings.recipeGenMethod === 'deepseek') {
+                deepseekSettings.style.display = 'block';
+            } else {
+                deepseekSettings.style.display = 'none';
+            }
+        });
+        
+        saveSettings.addEventListener('click', () => {
+            // Get selected processing method
+            processingMethodRadios.forEach(radio => {
+                if (radio.checked) {
+                    appSettings.processingMethod = radio.value;
+                }
+            });
+            
+            // Get selected recipe generation method
+            document.getElementsByName('recipeGenMethod').forEach(radio => {
+                if (radio.checked) {
+                    appSettings.recipeGenMethod = radio.value;
+                }
+            });
+            
+            // Save API key if gemini is selected for either feature
+            if (appSettings.processingMethod === 'gemini' || appSettings.recipeGenMethod === 'gemini') {
+                appSettings.geminiApiKey = geminiApiKey.value;
+            }
+            
+            // Save DeepSeek API key
+            if (appSettings.recipeGenMethod === 'deepseek') {
+                appSettings.deepseekApiKey = deepseekApiKey.value;
+            }
+            
+            // Save Tavily settings
+            appSettings.tavilyApiKey = tavilyApiKey.value;
+            appSettings.enableRecipeImages = enableRecipeImages.checked;
+            
+            saveAppSettings();
+        });
+        
+        // Show/hide Gemini settings based on selected processing method
+        processingMethodRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'gemini') {
+                    geminiSettings.style.display = 'block';
+                    deepseekSettings.style.display = 'none';
+                } else if (e.target.value === 'deepseek') {
+                    deepseekSettings.style.display = 'block';
+                    geminiSettings.style.display = appSettings.processingMethod === 'gemini' ? 'block' : 'none';
+                } else if (appSettings.processingMethod !== 'gemini') {
+                    // Only hide if receipt processing also doesn't need it
+                    geminiSettings.style.display = 'none';
+                    deepseekSettings.style.display = 'none';
+                }
+            });
+        });
+        
+        // Show/hide Gemini settings based on selected recipe generation method
+        document.getElementsByName('recipeGenMethod').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                if (e.target.value === 'gemini') {
+                    geminiSettings.style.display = 'block';
+                    deepseekSettings.style.display = 'none';
+                } else if (e.target.value === 'deepseek') {
+                    deepseekSettings.style.display = 'block';
+                    geminiSettings.style.display = appSettings.processingMethod === 'gemini' ? 'block' : 'none';
+                } else if (appSettings.processingMethod !== 'gemini') {
+                    // Only hide if receipt processing also doesn't need it
+                    geminiSettings.style.display = 'none';
+                    deepseekSettings.style.display = 'none';
+                }
+            });
+        });
+
+        // Simulate receipt scanning
+        uploadArea.addEventListener('click', () => {
+            receiptUpload.click();
+        });
+
+        receiptUpload.addEventListener('change', async (e) => {
+            if (e.target.files.length > 0) {
+                // Show scanning progress
+                scanProgress.classList.remove('hidden');
+                uploadArea.classList.add('hidden');
+                
+                if (appSettings.processingMethod === 'simulation') {
+                    // Simulate progress
+                    let progress = 0;
+                    const progressInterval = setInterval(() => {
+                        progress += 10;
+                        progressBar.style.width = `${progress}%`;
+                        
+                        if (progress >= 100) {
+                            clearInterval(progressInterval);
+                            
+                            // Show results after 0.5s
+                            setTimeout(() => {
+                                scanProgress.classList.add('hidden');
+                                scanResults.classList.remove('hidden');
+                                const itemsFound = Math.floor(Math.random() * 8) + 3; // Random number between 3-10
+                                document.getElementById('itemCount').textContent = itemsFound;
+                            }, 500);
+                        }
+                    }, 200);
+                } else if (appSettings.processingMethod === 'gemini') {
+                    // Use Gemini API for processing
+                    try {
+                        // Check if API key is provided
+                        if (!appSettings.geminiApiKey) {
+                            throw new Error('Gemini API key is required. Please add it in settings.');
+                        }
+                        
+                        // Read the file and convert to base64
+                        const file = e.target.files[0];
+                        const base64Image = await readFileAsBase64(file);
+                        
+                        // Set initial progress
+                        progressBar.style.width = '30%';
+                        
+                        // Process receipt with Gemini
+                        const items = await processReceiptWithGemini(base64Image);
+                        
+                        // Update progress
+                        progressBar.style.width = '100%';
+                        
+                        // Show results after 0.5s
+                        setTimeout(() => {
+                            scanProgress.classList.add('hidden');
+                            scanResults.classList.remove('hidden');
+                            document.getElementById('itemCount').textContent = items.length;
+                            
+                            // Store detected items for later use
+                            window.detectedItems = items;
+                        }, 500);
+                    } catch (error) {
+                        console.error('Error processing receipt:', error);
+                        
+                        // Show error notification
+                        notification.textContent = `Error: ${error.message}`;
+                        notification.classList.add('show');
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 5000);
+                        
+                        // Reset UI
+                        scanProgress.classList.add('hidden');
+                        uploadArea.classList.remove('hidden');
+                    }
+                }
+            }
+        });
+
+        // Read file as base64
+        function readFileAsBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const base64String = reader.result.split(',')[1];
+                    resolve(base64String);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // Process receipt with Gemini Vision API
+        async function processReceiptWithGemini(base64Image) {
+            const endpoint = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent';
+            const apiKey = appSettings.geminiApiKey;
+            
+            const promptText = "You are a receipt analyzer. Analyze this grocery receipt image. Extract all food items purchased with their quantities. Format your response as a JSON array of objects. Each object should have 'name', 'quantity', and 'category' (e.g., produce, dairy, protein, grains, other) properties. Example: [{\"name\": \"Milk\", \"quantity\": 1, \"category\": \"dairy\"}, {\"name\": \"Eggs\", \"quantity\": 12, \"category\": \"protein\"}]. Only include food items.";
+            
+            const requestBody = {
+                contents: [{
+                    parts: [
+                        { text: promptText },
+                        {
+                            inline_data: {
+                                mime_type: "image/jpeg",
+                                data: base64Image
+                            }
+                        }
+                    ]
+                }],
+                generationConfig: {
+                    temperature: 0.4,
+                    topK: 32,
+                    topP: 1,
+                    maxOutputTokens: 4096,
+                }
+            };
+            
+            try {
+                const response = await fetch(`${endpoint}?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error (${response.status}): ${errorText}`);
+                }
+                
+                const result = await response.json();
+                
+                // Extract the text from the response
+                const content = result.candidates[0].content;
+                const responseText = content.parts[0].text;
+                
+                // Find the JSON part in the response
+                let jsonMatch;
+                if (responseText.includes('[') && responseText.includes(']')) {
+                    jsonMatch = responseText.substring(
+                        responseText.indexOf('['),
+                        responseText.lastIndexOf(']') + 1
+                    );
+                }
+                
+                // Parse the extracted items
+                let extractedItems = [];
+                if (jsonMatch) {
+                    try {
+                        extractedItems = JSON.parse(jsonMatch);
+                        
+                        // Add IDs and expiration dates (simulated)
+                        extractedItems = extractedItems.map((item, index) => {
+                            // Calculate a random expiration date between 3 and 30 days from now
+                            const today = new Date();
+                            const expiryDays = Math.floor(Math.random() * 27) + 3; // 3 to 30 days
+                            const expiryDate = new Date(today);
+                            expiryDate.setDate(today.getDate() + expiryDays);
+                            
+                            return {
+                                ...item,
+                                id: inventory.length + index + 1,
+                                expirationDate: expiryDate.toISOString().split('T')[0]
+                            };
+                        });
+                    } catch (e) {
+                        console.error('Error parsing JSON response:', e);
+                        throw new Error('Could not parse the items from the receipt.');
+                    }
+                } else {
+                    throw new Error('No valid items found in the receipt image.');
+                }
+                
+                return extractedItems;
+            } catch (error) {
+                console.error('Error calling Gemini API:', error);
+                throw error;
+            }
+        }
+
+        // Simulate adding scanned items to inventory
+        addToInventory.addEventListener('click', () => {
+            scanResults.classList.add('hidden');
+            uploadArea.classList.remove('hidden');
+            
+            // If we have detected items from Gemini, add them to inventory
+            if (window.detectedItems && appSettings.processingMethod === 'gemini') {
+                window.detectedItems.forEach(item => {
+                    inventory.push(item);
+                });
+                
+                // Clear detected items
+                window.detectedItems = null;
+            } else {
+                // Simulation mode: add random items
+                // (This is just for demonstration purposes)
+                const randomItems = [
+                    { name: 'Avocado', category: 'produce', quantity: 3 },
+                    { name: 'Greek Yogurt', category: 'dairy', quantity: 1 },
+                    { name: 'Ground Turkey', category: 'protein', quantity: 1 },
+                    { name: 'Quinoa', category: 'grains', quantity: 1 },
+                    { name: 'Bell Peppers', category: 'produce', quantity: 4 }
+                ];
+                
+                // Add 2-3 random items
+                const numToAdd = Math.floor(Math.random() * 2) + 2;
+                for (let i = 0; i < numToAdd; i++) {
+                    const randomIndex = Math.floor(Math.random() * randomItems.length);
+                    const item = randomItems[randomIndex];
+                    
+                    // Calculate a random expiration date
+                    const today = new Date();
+                    const expiryDays = Math.floor(Math.random() * 14) + 1; // 1 to 14 days
+                    const expiryDate = new Date(today);
+                    expiryDate.setDate(today.getDate() + expiryDays);
+                    
+                    inventory.push({
+                        id: inventory.length + 1,
+                        name: item.name,
+                        quantity: item.quantity,
+                        category: item.category,
+                        expirationDate: expiryDate.toISOString().split('T')[0]
+                    });
+                }
+            }
+            
+            // Show notification
+            notification.textContent = 'Items added to inventory!';
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+            
+            // Render inventory
+            renderInventory();
+            
+            // Generate new recipes
+            renderRecipes();
+        });
+
+        // Render inventory items
+        function renderInventory(filter = 'all', searchTerm = '') {
+            inventoryList.innerHTML = '';
+            
+            const today = new Date();
+            const filteredItems = inventory.filter(item => {
+                // Apply category filter
+                const categoryMatch = filter === 'all' || item.category === filter;
+                
+                // Apply search filter
+                const searchMatch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+                
+                return categoryMatch && searchMatch;
+            });
+            
+            // Check if we're showing the expiring tab
+            const expiringOnly = document.querySelector('.tab.active').dataset.tab === 'expiring';
+            
+            let itemsToShow = filteredItems;
+            if (expiringOnly) {
+                itemsToShow = filteredItems.filter(item => {
+                    const expDate = new Date(item.expirationDate);
+                    const diffTime = expDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                    return diffDays <= 5 && diffDays >= 0;
+                });
+            }
+            
+            if (itemsToShow.length === 0) {
+                inventoryList.innerHTML = '<p style="padding: 1rem; text-align: center;">No items found</p>';
+                return;
+            }
+            
+            itemsToShow.forEach(item => {
+                const expDate = new Date(item.expirationDate);
+                const diffTime = expDate - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                const isExpiringSoon = diffDays <= 5 && diffDays >= 0;
+                
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                
+                let expirationText = '';
+                if (diffDays < 0) {
+                    expirationText = 'Expired';
+                } else if (diffDays === 0) {
+                    expirationText = 'Expires today';
+                } else {
+                    expirationText = `Expires in ${diffDays} days`;
+                }
+                
+                itemElement.innerHTML = `
+                    <div class="inventory-item-details">
+                        <span class="inventory-item-name">${item.name}</span>
+                        <span class="inventory-item-meta">${item.quantity} ${item.quantity > 1 ? 'units' : 'unit'} · ${item.category} · 
+                            <span class="${isExpiringSoon ? 'expiring-soon' : ''}">${expirationText}</span>
+                        </span>
+                    </div>
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <button class="btn btn-secondary" style="padding: 0.4rem;" onclick="decrementQuantity(${item.id})">-</button>
+                        <button class="btn btn-secondary" style="padding: 0.4rem;" onclick="incrementQuantity(${item.id})">+</button>
+                        <div class="item-menu-container" style="position: relative;">
+                            <button class="btn-menu" data-id="${item.id}" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">...</button>
+                            <div class="item-menu" style="display: none; position: absolute; right: 0; top: 100%; background: white; border: 1px solid var(--border); border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 10; min-width: 150px;">
+                                <div style="padding: 0.5rem; border-bottom: 1px solid var(--border); font-weight: bold;">Move to category</div>
+                                <div class="menu-item" data-id="${item.id}" data-category="produce" style="padding: 0.5rem; cursor: pointer; hover:background-color: var(--primary-light);">Produce</div>
+                                <div class="menu-item" data-id="${item.id}" data-category="dairy" style="padding: 0.5rem; cursor: pointer; hover:background-color: var(--primary-light);">Dairy</div>
+                                <div class="menu-item" data-id="${item.id}" data-category="protein" style="padding: 0.5rem; cursor: pointer; hover:background-color: var(--primary-light);">Protein</div>
+                                <div class="menu-item" data-id="${item.id}" data-category="grains" style="padding: 0.5rem; cursor: pointer; hover:background-color: var(--primary-light);">Grains</div>
+                                <div class="menu-item" data-id="${item.id}" data-category="other" style="padding: 0.5rem; cursor: pointer; hover:background-color: var(--primary-light);">Other</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                inventoryList.appendChild(itemElement);
+            });
+        }
+
+        // Handle search
+        inventorySearch.addEventListener('input', (e) => {
+            const searchTerm = e.target.value;
+            const activeFilter = document.querySelector('.filter-pill.active').dataset.filter;
+            renderInventory(activeFilter, searchTerm);
+        });
+
+        // Handle category filters
+        filterPills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                filterPills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                
+                const filter = pill.dataset.filter;
+                const searchTerm = inventorySearch.value;
+                renderInventory(filter, searchTerm);
+            });
+        });
+
+        // Handle tabs
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                
+                // Reset filter to all when changing tabs
+                filterPills.forEach(p => p.classList.remove('active'));
+                document.querySelector('.filter-pill[data-filter="all"]').classList.add('active');
+                
+                // Clear search
+                inventorySearch.value = '';
+                
+                renderInventory();
+            });
+        });
+
+        // Handle manually adding items
+        addManually.addEventListener('click', () => {
+            addItemModal.style.display = 'block';
+        });
+
+        cancelAddItem.addEventListener('click', () => {
+            addItemModal.style.display = 'none';
+        });
+
+        addItemForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('itemName').value;
+            const category = document.getElementById('itemCategory').value;
+            const quantity = parseInt(document.getElementById('itemQuantity').value);
+            const expirationDate = document.getElementById('expirationDate').value || null;
+            
+            if (name && quantity) {
+                // Add to inventory
+                inventory.push({
+                    id: inventory.length + 1,
+                    name,
+                    quantity,
+                    category,
+                    expirationDate
+                });
+                
+                // Reset form and close modal
+                addItemForm.reset();
+                addItemModal.style.display = 'none';
+                
+                // Show notification
+                notification.textContent = `${name} added to inventory!`;
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+                
+                // Update display
+                renderInventory();
+                renderRecipes();
+            }
+        });
+
+        // Handle recipe rendering
+        function renderRecipes() {
+            recipeList.innerHTML = '';
+            
+            if (sampleRecipes.length === 0) {
+                // Display a message when there are no recipes
+                recipeList.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <p>No recipe suggestions yet.</p>
+                        <p>Click "Generate More Recipes" to get personalized suggestions based on your inventory.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            sampleRecipes.forEach(recipe => {
+                const recipeElement = document.createElement('div');
+                recipeElement.className = 'recipe-card';
+                
+                let ingredientsList = '';
+                recipe.ingredients.forEach(ingredient => {
+                    ingredientsList += `
+                        <span class="recipe-ingredient ${ingredient.expiringSoon ? 'expiring-ingredient' : ''}">
+                            ${ingredient.name}${ingredient.expiringSoon ? ' (Expiring Soon)' : ''}
+                        </span>
+                    `;
+                });
+                
+                // Check if recipe has an image
+                const imageHtml = recipe.imageUrl ? 
+                    `<img src="${recipe.imageUrl}" class="recipe-image" alt="${recipe.title}">` : 
+                    `<div class="recipe-image" style="display: flex; align-items: center; justify-content: center; background-color: #f0f0f0;">
+                        <span style="color: #999;">No image available</span>
+                    </div>`;
+                
+                recipeElement.innerHTML = `
+                    ${imageHtml}
+                    <div class="recipe-header">
+                        <div class="recipe-title">${recipe.title}</div>
+                        <button class="btn-delete-recipe" data-id="${recipe.id}" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.2rem;">
+                            <span style="font-weight: bold;">×</span>
+                        </button>
+                    </div>
+                    <div class="recipe-meta">
+                        <span>${recipe.difficulty}</span>
+                        <span>${recipe.prepTime}</span>
+                        <span>${recipe.calories || 'N/A'} cal</span>
+                        <span>Health: ${displayHealthLevel(recipe.healthLevel || 0)}</span>
+                    </div>
+                    <div class="recipe-ingredients">
+                        ${ingredientsList}
+                    </div>
+                    <div>
+                        <p>${recipe.instructions}</p>
+                    </div>
+                    <div class="recipe-actions">
+                        <button class="btn btn-secondary view-recipe" data-id="${recipe.id}">View Full Recipe</button>
+                        <button class="btn save-recipe" data-id="${recipe.id}">Save Recipe</button>
+                    </div>
+                `;
+                
+                recipeList.appendChild(recipeElement);
+            });
+            
+            // Add event listeners to save and delete buttons
+            document.querySelectorAll('.save-recipe').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const recipeId = parseInt(e.target.dataset.id);
+                    const recipe = sampleRecipes.find(r => r.id === recipeId);
+                    
+                    if (recipe && !savedRecipes.some(r => r.id === recipeId)) {
+                        savedRecipes.push(recipe);
+                        renderSavedRecipes();
+                        
+                        // Show notification
+                        notification.textContent = `${recipe.title} saved to your recipes!`;
+                        notification.classList.add('show');
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 3000);
+                    }
+                });
+            });
+            
+            // Add event listeners for delete buttons
+            document.querySelectorAll('.btn-delete-recipe').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const recipeId = parseInt(e.target.closest('.btn-delete-recipe').dataset.id);
+                    const recipeIndex = sampleRecipes.findIndex(r => r.id === recipeId);
+                    
+                    if (recipeIndex !== -1) {
+                        const deletedRecipe = sampleRecipes[recipeIndex];
+                        
+                        // Remove recipe from array
+                        sampleRecipes.splice(recipeIndex, 1);
+                        
+                        // Re-render recipes
+                        renderRecipes();
+                        
+                        // Show notification
+                        notification.textContent = `${deletedRecipe.title} removed from suggestions`;
+                        notification.classList.add('show');
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 3000);
+                    }
+                });
+            });
+            
+            // Add event listeners for view recipe buttons
+            document.querySelectorAll('.view-recipe').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const recipeId = parseInt(e.target.dataset.id);
+                    const recipe = sampleRecipes.find(r => r.id === recipeId);
+                    
+                    if (recipe) {
+                        showRecipeDetails(recipe);
+                    }
+                });
+            });
+        }
+
+        // Generate more recipes
+        generateMoreRecipes.addEventListener('click', async () => {
+            if (appSettings.recipeGenMethod === 'simulation') {
+                // Show notification for simulation mode
+                notification.textContent = 'Generating new recipe suggestions...';
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    
+                    // Add a new random recipe
+                    const newRecipe = {
+                        id: sampleRecipes.length + 1,
+                        title: 'Quick Milk and Bread Pudding',
+                        difficulty: 'Easy',
+                        prepTime: '20 mins',
+                        calories: 350,
+                        healthLevel: 2,
+                        ingredients: [
+                            { name: 'Milk', expiringSoon: false },
+                            { name: 'Bread', expiringSoon: true },
+                            { name: 'Eggs', expiringSoon: false }
+                        ],
+                        instructions: 'Tear bread into pieces, mix with milk and beaten eggs. Bake until golden for a quick bread pudding.',
+                        imageUrl: 'https://images.unsplash.com/photo-1620979828929-43a2efb192ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80'
+                    };
+                    
+                    sampleRecipes.push(newRecipe);
+                    renderRecipes();
+                }, 2000);
+            } else if (appSettings.recipeGenMethod === 'gemini') {
+                try {
+                    // Check if API key is provided
+                    if (!appSettings.geminiApiKey) {
+                        throw new Error('Gemini API key is required. Please add it in settings.');
+                    }
+                    
+                    // Show notification
+                    notification.textContent = 'Generating personalized recipes with Gemini AI...';
+                    notification.classList.add('show');
+                    
+                    // Get expiring items to prioritize
+                    const today = new Date();
+                    const expiringItems = inventory.filter(item => {
+                        const expDate = new Date(item.expirationDate);
+                        const diffTime = expDate - today;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        return diffDays <= 5 && diffDays >= 0;
+                    });
+                    
+                    // Generate recipes with Gemini
+                    const newRecipes = await generateRecipesWithGemini(inventory, expiringItems);
+                    
+                    // If recipe images are enabled and Tavily API key is available, get images
+                    if (appSettings.enableRecipeImages && appSettings.tavilyApiKey) {
+                        notification.textContent = 'Finding images for recipes...';
+                        
+                        // Find images for each recipe
+                        for (const recipe of newRecipes) {
+                            try {
+                                const imageUrl = await searchRecipeImage(recipe.title);
+                                recipe.imageUrl = imageUrl;
+                            } catch (imageError) {
+                                console.warn('Could not find image for recipe:', imageError);
+                                // Continue even if image search fails
+                            }
+                        }
+                    }
+                    
+                    // Hide notification
+                    notification.classList.remove('show');
+                    
+                    // Add new recipes to the sample recipes
+                    newRecipes.forEach(recipe => {
+                        sampleRecipes.push({
+                            id: sampleRecipes.length + 1,
+                            ...recipe
+                        });
+                    });
+                    
+                    // Render recipes
+                    renderRecipes();
+                    
+                    // Show success notification
+                    notification.textContent = `Generated ${newRecipes.length} new recipe suggestions!`;
+                    notification.classList.add('show');
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('Error generating recipes:', error);
+                    
+                    // Show error notification
+                    notification.textContent = `Error: ${error.message}`;
+                    notification.classList.add('show');
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 5000);
+                }
+            } else if (appSettings.recipeGenMethod === 'deepseek') {
+                try {
+                    // Check if API key is provided
+                    if (!appSettings.deepseekApiKey) {
+                        throw new Error('DeepSeek API key is required. Please add it in settings.');
+                    }
+                    
+                    // Show notification
+                    notification.textContent = 'Generating personalized recipes with DeepSeek Chat...';
+                    notification.classList.add('show');
+                    
+                    // Get expiring items to prioritize
+                    const today = new Date();
+                    const expiringItems = inventory.filter(item => {
+                        const expDate = new Date(item.expirationDate);
+                        const diffTime = expDate - today;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        return diffDays <= 5 && diffDays >= 0;
+                    });
+                    
+                    // Generate recipes with DeepSeek
+                    const newRecipes = await generateRecipesWithDeepSeek(inventory, expiringItems);
+                    
+                    // If recipe images are enabled and Tavily API key is available, get images
+                    if (appSettings.enableRecipeImages && appSettings.tavilyApiKey) {
+                        notification.textContent = 'Finding images for recipes...';
+                        
+                        // Find images for each recipe
+                        for (const recipe of newRecipes) {
+                            try {
+                                const imageUrl = await searchRecipeImage(recipe.title);
+                                recipe.imageUrl = imageUrl;
+                            } catch (imageError) {
+                                console.warn('Could not find image for recipe:', imageError);
+                                // Continue even if image search fails
+                            }
+                        }
+                    }
+                    
+                    // Hide notification
+                    notification.classList.remove('show');
+                    
+                    // Add new recipes to the sample recipes
+                    newRecipes.forEach(recipe => {
+                        sampleRecipes.push({
+                            id: sampleRecipes.length + 1,
+                            ...recipe
+                        });
+                    });
+                    
+                    // Render recipes
+                    renderRecipes();
+                    
+                    // Show success notification
+                    notification.textContent = `Generated ${newRecipes.length} new recipe suggestions!`;
+                    notification.classList.add('show');
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('Error generating recipes with DeepSeek:', error);
+                    
+                    // Show error notification
+                    notification.textContent = `Error: ${error.message}`;
+                    notification.classList.add('show');
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 5000);
+                }
+            }
+        });
+        
+        // Generate recipes with Gemini
+        async function generateRecipesWithGemini(inventoryItems, expiringItems) {
+            const endpoint = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent';
+            const apiKey = appSettings.geminiApiKey;
+            
+            // Prepare inventory data for the prompt
+            const inventoryText = inventoryItems.map(item => 
+                `${item.name} (${item.quantity} ${item.quantity > 1 ? 'units' : 'unit'}, category: ${item.category})`
+            ).join(', ');
+            
+            // Prepare expiring items data
+            const expiringText = expiringItems.length > 0 
+                ? `Items that are expiring soon: ${expiringItems.map(item => item.name).join(', ')}.` 
+                : 'No items are expiring soon.';
+            
+            const promptText = `You are a smart recipe generator. Create 2 unique and creative recipes using ingredients from my inventory. Prioritize using ingredients that are expiring soon.
+
+My current inventory: ${inventoryText}
+
+${expiringText}
+
+For each recipe, provide:
+1. A catchy title
+2. Difficulty level (Easy, Medium, or Hard)
+3. Preparation time
+4. Approximate calories per serving
+5. Health level on a scale of 1-5 (where 5 is very healthy and 1 is least healthy)
+6. A list of ingredients with quantities
+7. Brief cooking instructions
+
+Format your response as a JSON array of recipe objects. Each object should have "title", "difficulty", "prepTime", "calories", "healthLevel", "ingredients", and "instructions" properties. 
+For ingredients, include an array of objects with "name" and "expiringSoon" (boolean) properties.
+
+Example format:
+[
+  {
+    "title": "Spinach and Egg Breakfast Bowl",
+    "difficulty": "Easy",
+    "prepTime": "15 mins",
+    "calories": 320,
+    "healthLevel": 4,
+    "ingredients": [
+      {"name": "Eggs", "expiringSoon": false},
+      {"name": "Spinach", "expiringSoon": true},
+      {"name": "Cheese", "expiringSoon": false}
+    ],
+    "instructions": "Sauté spinach, cook eggs, and top with cheese for a quick breakfast bowl."
+  }
+]`;
+            
+            const requestBody = {
+                contents: [{
+                    parts: [{ text: promptText }]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    topK: 32,
+                    topP: 1,
+                    maxOutputTokens: 4096,
+                }
+            };
+            
+            try {
+                const response = await fetch(`${endpoint}?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error (${response.status}): ${errorText}`);
+                }
+                
+                const result = await response.json();
+                
+                // Extract the text from the response
+                const content = result.candidates[0].content;
+                const responseText = content.parts[0].text;
+                
+                // Parse the response into sections
+                const sections = parseDetailedInstructions(responseText);
+                
+                return sections;
+            } catch (error) {
+                console.error('Error generating detailed instructions:', error);
+                throw error;
+            }
+        }
+
+        // Search recipe images with Tavily
+        async function searchRecipeImage(recipeName) {
+            const endpoint = 'https://api.tavily.com/search';
+            const apiKey = appSettings.tavilyApiKey;
+            
+            if (!apiKey) {
+                throw new Error('Tavily API key is required for image search');
+            }
+            
+            const searchQuery = `${recipeName} recipe dish food`;
+            
+            const requestBody = {
+                api_key: apiKey,
+                query: searchQuery,
+                search_depth: "basic",
+                include_images: true,
+                include_answer: false,
+                include_raw: false,
+                max_results: 5
+            };
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Tavily API Error (${response.status}): ${errorText}`);
+                }
+                
+                const result = await response.json();
+                
+                // Extract images from the search results
+                const images = [];
+                
+                if (result.images && result.images.length > 0) {
+                    // Use images directly from images array
+                    return result.images[0]; // Return the first image
+                }
+                
+                // Fall back to checking regular results for images
+                if (result.results) {
+                    for (const item of result.results) {
+                        if (item.image_url) {
+                            images.push(item.image_url);
+                        }
+                    }
+                    
+                    if (images.length > 0) {
+                        return images[0]; // Return the first image found
+                    }
+                }
+                
+                // If no images found, return a placeholder
+                return 'https://via.placeholder.com/400x300?text=No+Image+Found';
+                
+            } catch (error) {
+                console.error('Error searching recipe image:', error);
+                throw error;
+            }
+        }
+
+        // Render saved recipes
+        function renderSavedRecipes() {
+            if (savedRecipes.length === 0) {
+                noSavedRecipes.style.display = 'block';
+                return;
+            }
+            
+            noSavedRecipes.style.display = 'none';
+            savedRecipesList.innerHTML = '';
+            
+            savedRecipes.forEach(recipe => {
+                const recipeElement = document.createElement('div');
+                recipeElement.className = 'recipe-card';
+                
+                recipeElement.innerHTML = `
+                    <div class="recipe-header">
+                        <div class="recipe-title">${recipe.title}</div>
+                        <button class="btn-delete-saved-recipe" data-id="${recipe.id}" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.2rem;">
+                            <span style="font-weight: bold;">×</span>
+                        </button>
+                    </div>
+                    <div class="recipe-meta">
+                        <span>${recipe.difficulty}</span>
+                        <span>${recipe.prepTime}</span>
+                        <span>${recipe.calories || 'N/A'} cal</span>
+                        <span>Health: ${displayHealthLevel(recipe.healthLevel || 0)}</span>
+                    </div>
+                    <div class="recipe-actions">
+                        <button class="btn btn-secondary view-recipe" data-id="${recipe.id}">View Recipe</button>
+                    </div>
+                `;
+                
+                savedRecipesList.appendChild(recipeElement);
+            });
+            
+            // Add event listeners for delete buttons on saved recipes
+            document.querySelectorAll('.btn-delete-saved-recipe').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const recipeId = parseInt(e.target.closest('.btn-delete-saved-recipe').dataset.id);
+                    const recipeIndex = savedRecipes.findIndex(r => r.id === recipeId);
+                    
+                    if (recipeIndex !== -1) {
+                        const deletedRecipe = savedRecipes[recipeIndex];
+                        
+                        // Remove recipe from array
+                        savedRecipes.splice(recipeIndex, 1);
+                        
+                        // Re-render saved recipes
+                        renderSavedRecipes();
+                        
+                        // Show notification
+                        notification.textContent = `${deletedRecipe.title} removed from saved recipes`;
+                        notification.classList.add('show');
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 3000);
+                    }
+                });
+            });
+            
+            // Add event listeners for view recipe buttons on saved recipes
+            document.querySelectorAll('.view-recipe').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const recipeId = parseInt(e.target.dataset.id);
+                    const recipe = savedRecipes.find(r => r.id === recipeId) || 
+                                sampleRecipes.find(r => r.id === recipeId);
+                    
+                    if (recipe) {
+                        showRecipeDetails(recipe);
+                    }
+                });
+            });
+        }
+
+        // Utility function to decrement quantity
+        window.decrementQuantity = function(id) {
+            const itemIndex = inventory.findIndex(item => item.id === id);
+            if (itemIndex !== -1) {
+                inventory[itemIndex].quantity--;
+                
+                if (inventory[itemIndex].quantity <= 0) {
+                    inventory.splice(itemIndex, 1);
+                }
+                
+                renderInventory();
+            }
+        };
+
+        // Combine similar items
+        combineItems.addEventListener('click', () => {
+            const originalCount = inventory.length;
+            combineInventoryItems();
+            
+            // Render updated inventory
+            renderInventory();
+            
+            // Show notification
+            const reducedItems = originalCount - inventory.length;
+            notification.textContent = `Combined ${reducedItems} similar items in inventory!`;
+            notification.classList.add('show');
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        });
+        
+        // Function to combine similar inventory items
+        function combineInventoryItems() {
+            // Create a map to store similar items
+            const itemGroups = {};
+            
+            // Helper function to normalize item names for comparison
+            function normalizeItemName(name) {
+                // Convert to lowercase and remove common suffixes
+                let normalized = name.toLowerCase().trim();
+                
+                // Handle plural forms (remove trailing 's')
+                if (normalized.endsWith('s') && !normalized.endsWith('ss')) {
+                    normalized = normalized.slice(0, -1);
+                }
+                
+                // Remove common prefixes like "organic", "fresh", etc.
+                const prefixesToRemove = ['organic', 'fresh', 'frozen', 'whole', 'sliced', 'diced'];
+                for (const prefix of prefixesToRemove) {
+                    if (normalized.startsWith(prefix + ' ')) {
+                        normalized = normalized.substring(prefix.length + 1);
+                    }
+                }
+                
+                return normalized.trim();
+            }
+            
+            // Group similar items
+            inventory.forEach(item => {
+                const normalizedName = normalizeItemName(item.name);
+                
+                if (!itemGroups[normalizedName]) {
+                    itemGroups[normalizedName] = [];
+                }
+                
+                itemGroups[normalizedName].push(item);
+            });
+            
+            // Create a new inventory with combined items
+            const newInventory = [];
+            
+            for (const normalizedName in itemGroups) {
+                const group = itemGroups[normalizedName];
+                
+                if (group.length === 1) {
+                    // If only one item in the group, keep it as is
+                    newInventory.push(group[0]);
+                } else {
+                    // Combine similar items
+                    const mainItem = group[0]; // Use the first item as the base
+                    let totalQuantity = 0;
+                    let earliestExpiration = null;
+                    
+                    // Calculate total quantity and find earliest expiration date
+                    group.forEach(item => {
+                        totalQuantity += item.quantity;
+                        
+                        if (item.expirationDate) {
+                            if (!earliestExpiration || new Date(item.expirationDate) < new Date(earliestExpiration)) {
+                                earliestExpiration = item.expirationDate;
+                            }
+                        }
+                    });
+                    
+                    // Create combined item
+                    const combinedItem = {
+                        id: mainItem.id,
+                        name: mainItem.name, // Keep the name of the first item
+                        quantity: totalQuantity,
+                        category: mainItem.category,
+                        expirationDate: earliestExpiration
+                    };
+                    
+                    newInventory.push(combinedItem);
+                }
+            }
+            
+            // Update inventory with combined items
+            inventory.length = 0;
+            newInventory.forEach(item => inventory.push(item));
+        }
+
+        // Show detailed recipe instructions
+        async function showRecipeDetails(recipe) {
+            // Display the modal
+            recipeDetailsModal.style.display = 'block';
+            
+            // Set basic recipe details
+            recipeDetailsTitle.textContent = recipe.title;
+            recipeDetailsDifficulty.textContent = recipe.difficulty;
+            recipeDetailsPrepTime.textContent = recipe.prepTime;
+            recipeDetailsCalories.textContent = recipe.calories ? `${recipe.calories} cal` : 'N/A';
+            recipeDetailsHealth.textContent = displayHealthLevel(recipe.healthLevel || 0);
+            
+            // Render ingredients
+            recipeDetailsIngredients.innerHTML = '';
+            recipe.ingredients.forEach(ingredient => {
+                const ingredientEl = document.createElement('div');
+                ingredientEl.style.margin = '0.5rem 0';
+                ingredientEl.innerHTML = `
+                    <span class="${ingredient.expiringSoon ? 'expiring-soon' : ''}">${ingredient.name}</span>
+                `;
+                recipeDetailsIngredients.appendChild(ingredientEl);
+            });
+            
+            // Show loading indicator
+            recipeDetailsInstructions.style.display = 'none';
+            recipeDetailsLoading.style.display = 'block';
+            recipeDetailsProgress.style.width = '30%';
+            
+            try {
+                // Check if we already have detailed instructions for this recipe
+                if (recipe.detailedInstructions) {
+                    // Use cached instructions
+                    recipeDetailsProgress.style.width = '100%';
+                    setTimeout(() => {
+                        displayDetailedInstructions(recipe.detailedInstructions);
+                    }, 500);
+                } else if (appSettings.recipeGenMethod === 'gemini' && appSettings.geminiApiKey) {
+                    // Generate detailed instructions with Gemini
+                    recipeDetailsProgress.style.width = '50%';
+                    
+                    const detailedInstructions = await generateDetailedInstructions(recipe);
+                    
+                    // Cache the detailed instructions in the recipe object
+                    recipe.detailedInstructions = detailedInstructions;
+                    
+                    // Display the detailed instructions
+                    recipeDetailsProgress.style.width = '100%';
+                    setTimeout(() => {
+                        displayDetailedInstructions(detailedInstructions);
+                    }, 500);
+                } else {
+                    // Fallback to basic instructions if Gemini is not enabled
+                    recipeDetailsProgress.style.width = '100%';
+                    setTimeout(() => {
+                        displayDetailedInstructions([
+                            { title: 'Instructions', content: recipe.instructions }
+                        ]);
+                    }, 500);
+                }
+            } catch (error) {
+                console.error('Error loading detailed instructions:', error);
+                
+                // Show error notification
+                notification.textContent = `Error: ${error.message}`;
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 5000);
+                
+                // Fallback to basic instructions
+                recipeDetailsProgress.style.width = '100%';
+                setTimeout(() => {
+                    displayDetailedInstructions([
+                        { title: 'Instructions', content: recipe.instructions }
+                    ]);
+                }, 500);
+            }
+        }
+        
+        // Display the detailed instructions in the modal
+        function displayDetailedInstructions(instructions) {
+            recipeDetailsLoading.style.display = 'none';
+            recipeDetailsInstructions.style.display = 'block';
+            
+            recipeDetailsInstructions.innerHTML = '';
+            
+            instructions.forEach(section => {
+                const sectionEl = document.createElement('div');
+                sectionEl.style.marginBottom = '1.5rem';
+                
+                if (section.title) {
+                    const titleEl = document.createElement('h4');
+                    titleEl.style.color = 'var(--primary-dark)';
+                    titleEl.style.marginBottom = '0.5rem';
+                    titleEl.textContent = section.title;
+                    sectionEl.appendChild(titleEl);
+                }
+                
+                if (section.content) {
+                    // Check if content contains numbered steps
+                    if (section.content.includes('1.')) {
+                        const steps = section.content.split(/\d+\.\s+/).filter(Boolean);
+                        
+                        const ol = document.createElement('ol');
+                        ol.style.paddingLeft = '1.5rem';
+                        
+                        steps.forEach(step => {
+                            const li = document.createElement('li');
+                            li.style.marginBottom = '0.5rem';
+                            li.textContent = step.trim();
+                            ol.appendChild(li);
+                        });
+                        
+                        sectionEl.appendChild(ol);
+                    } else {
+                        const contentEl = document.createElement('p');
+                        contentEl.textContent = section.content;
+                        sectionEl.appendChild(contentEl);
+                    }
+                }
+                
+                recipeDetailsInstructions.appendChild(sectionEl);
+            });
+        }
+        
+        // Generate detailed recipe instructions with Gemini
+        async function generateDetailedInstructions(recipe) {
+            const endpoint = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent';
+            const apiKey = appSettings.geminiApiKey;
+            
+            // Prepare ingredients list for the prompt
+            const ingredientsList = recipe.ingredients.map(ingredient => ingredient.name).join(', ');
+            
+            const promptText = `You are a professional chef describing a recipe in detail. Provide detailed step-by-step procedure for preparing this dish:
+
+Recipe: ${recipe.title}
+Difficulty: ${recipe.difficulty}
+Preparation Time: ${recipe.prepTime}
+Ingredients: ${ingredientsList}
+Basic Instructions: ${recipe.instructions}
+
+Please provide a comprehensive step-by-step guide for preparing this dish, including:
+1. Preparation steps (what to chop, mix, etc.)
+2. Cooking instructions with timing details
+3. Plating and serving suggestions
+4. Any tips for success or variations
+
+Format your response as clear numbered steps, being specific about quantities, temperatures, and timing where possible.`;
+            
+            const requestBody = {
+                contents: [{
+                    parts: [{ text: promptText }]
+                }],
+                generationConfig: {
+                    temperature: 0.7,
+                    topK: 32,
+                    topP: 1,
+                    maxOutputTokens: 4096,
+                }
+            };
+            
+            try {
+                const response = await fetch(`${endpoint}?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error (${response.status}): ${errorText}`);
+                }
+                
+                const result = await response.json();
+                
+                // Extract the text from the response
+                const content = result.candidates[0].content;
+                const responseText = content.parts[0].text;
+                
+                // Parse the response into sections
+                const sections = parseDetailedInstructions(responseText);
+                
+                return sections;
+            } catch (error) {
+                console.error('Error generating detailed instructions:', error);
+                throw error;
+            }
+        }
+        
+        // Parse the detailed instructions into sections
+        function parseDetailedInstructions(text) {
+            // Split by common section headers
+            const sections = [];
+            
+            // Look for common section patterns
+            const sectionPatterns = [
+                { pattern: /preparation:|prep:|preparing ingredients:/i, title: 'Preparation' },
+                { pattern: /cooking instructions:|cooking steps:|cooking method:|cooking:/i, title: 'Cooking Instructions' },
+                { pattern: /plating:|serving:|presentation:|serve:/i, title: 'Plating & Serving' },
+                { pattern: /tips:|variations:|notes:|chef's tips:/i, title: 'Tips & Variations' }
+            ];
+            
+            // Check if text has recognizable sections
+            let hasRecognizableSections = false;
+            for (const { pattern } of sectionPatterns) {
+                if (pattern.test(text)) {
+                    hasRecognizableSections = true;
+                    break;
+                }
+            }
+            
+            if (hasRecognizableSections) {
+                // Split text by sections
+                let currentSection = { title: 'Step-by-Step Instructions', content: '' };
+                const lines = text.split('\n');
+                
+                for (const line of lines) {
+                    let foundSection = false;
+                    
+                    for (const { pattern, title } of sectionPatterns) {
+                        if (pattern.test(line)) {
+                            // Save previous section if it has content
+                            if (currentSection.content.trim()) {
+                                sections.push({ ...currentSection });
+                            }
+                            
+                            // Start new section
+                            currentSection = { title, content: '' };
+                            foundSection = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!foundSection) {
+                        // Add line to current section
+                        currentSection.content += line + '\n';
+                    }
+                }
+                
+                // Add last section
+                if (currentSection.content.trim()) {
+                    sections.push({ ...currentSection });
+                }
+            } else {
+                // If no sections detected, consider everything as step-by-step instructions
+                sections.push({
+                    title: 'Step-by-Step Instructions',
+                    content: text
+                });
+            }
+            
+            return sections;
+        }
+
+        // Generate recipes with DeepSeek
+        async function generateRecipesWithDeepSeek(inventoryItems, expiringItems) {
+            const endpoint = 'https://api.deepseek.com/v1/chat/completions';
+            const apiKey = appSettings.deepseekApiKey;
+            
+            // Prepare inventory data for the prompt
+            const inventoryText = inventoryItems.map(item => 
+                `${item.name} (${item.quantity} ${item.quantity > 1 ? 'units' : 'unit'}, category: ${item.category})`
+            ).join(', ');
+            
+            // Prepare expiring items data
+            const expiringText = expiringItems.length > 0 
+                ? `Items that are expiring soon: ${expiringItems.map(item => item.name).join(', ')}.` 
+                : 'No items are expiring soon.';
+            
+            const promptText = `You are a smart recipe generator. Create 2 unique and creative recipes using ingredients from my inventory. Prioritize using ingredients that are expiring soon.
+
+My current inventory: ${inventoryText}
+
+${expiringText}
+
+For each recipe, provide:
+1. A catchy title
+2. Difficulty level (Easy, Medium, or Hard)
+3. Preparation time
+4. Approximate calories per serving
+5. Health level on a scale of 1-5 (where 5 is very healthy and 1 is least healthy)
+6. A list of ingredients with quantities
+7. Brief cooking instructions
+
+Format your response as a JSON array of recipe objects. Each object should have "title", "difficulty", "prepTime", "calories", "healthLevel", "ingredients", and "instructions" properties. 
+For ingredients, include an array of objects with "name" and "expiringSoon" (boolean) properties.
+
+Example format:
+[
+  {
+    "title": "Spinach and Egg Breakfast Bowl",
+    "difficulty": "Easy",
+    "prepTime": "15 mins",
+    "calories": 320,
+    "healthLevel": 4,
+    "ingredients": [
+      {"name": "Eggs", "expiringSoon": false},
+      {"name": "Spinach", "expiringSoon": true},
+      {"name": "Cheese", "expiringSoon": false}
+    ],
+    "instructions": "Sauté spinach, cook eggs, and top with cheese for a quick breakfast bowl."
+  }
+]`;
+            
+            const requestBody = {
+                model: "deepseek-chat",
+                messages: [
+                    {
+                        role: "system",
+                        content: "You are a helpful AI assistant specializing in recipe creation."
+                    },
+                    {
+                        role: "user",
+                        content: promptText
+                    }
+                ],
+                temperature: 0.7,
+                max_tokens: 4096
+            };
+            
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`API Error (${response.status}): ${errorText}`);
+                }
+                
+                const result = await response.json();
+                
+                // Extract the text from the response
+                const responseText = result.choices[0].message.content;
+                
+                // Find the JSON part in the response
+                let jsonMatch;
+                if (responseText.includes('[') && responseText.includes(']')) {
+                    jsonMatch = responseText.substring(
+                        responseText.indexOf('['),
+                        responseText.lastIndexOf(']') + 1
+                    );
+                }
+                
+                // Parse the generated recipes
+                let recipes = [];
+                if (jsonMatch) {
+                    try {
+                        recipes = JSON.parse(jsonMatch);
+                        
+                        // Mark expiring ingredients
+                        recipes.forEach(recipe => {
+                            if (recipe.ingredients && Array.isArray(recipe.ingredients)) {
+                                recipe.ingredients.forEach(ingredient => {
+                                    if (!ingredient.hasOwnProperty('expiringSoon')) {
+                                        // Check if this ingredient is in our expiring list
+                                        const isExpiring = expiringItems.some(item => 
+                                            item.name.toLowerCase() === ingredient.name.toLowerCase()
+                                        );
+                                        ingredient.expiringSoon = isExpiring;
+                                    }
+                                });
+                            }
+                        });
+                        
+                    } catch (e) {
+                        console.error('Error parsing JSON response:', e);
+                        throw new Error('Could not parse the recipes generated by DeepSeek.');
+                    }
+                } else {
+                    throw new Error('No valid recipes found in the DeepSeek response.');
+                }
+                
+                return recipes;
+            } catch (error) {
+                console.error('Error calling DeepSeek API:', error);
+                throw error;
+            }
+        }
+
+        // Initialize the app
+        function init() {
+            loadSettings(); // Load settings first
+            loadShoppingList(); // Load shopping list
+            renderInventory();
+            renderRecipes();
+            renderSavedRecipes();
+            renderShoppingList();
+            setupInspiredBySection();
+            
+            // Set up event delegation for menu buttons
+            document.addEventListener('click', function(e) {
+                // Close any open menus when clicking outside
+                if (!e.target.closest('.item-menu-container')) {
+                    document.querySelectorAll('.item-menu').forEach(menu => {
+                        menu.style.display = 'none';
+                    });
+                }
+                
+                // Toggle menu when clicking the ... button
+                if (e.target.classList.contains('btn-menu')) {
+                    e.preventDefault();
+                    const menu = e.target.nextElementSibling;
+                    
+                    // Close other menus
+                    document.querySelectorAll('.item-menu').forEach(m => {
+                        if (m !== menu) m.style.display = 'none';
+                    });
+                    
+                    // Toggle this menu
+                    menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+                }
+                
+                // Handle category selection
+                if (e.target.classList.contains('menu-item')) {
+                    const itemId = parseInt(e.target.dataset.id);
+                    const newCategory = e.target.dataset.category;
+                    
+                    // Move item to new category
+                    const itemIndex = inventory.findIndex(item => item.id === itemId);
+                    if (itemIndex !== -1) {
+                        const oldCategory = inventory[itemIndex].category;
+                        
+                        // Only update if category changed
+                        if (oldCategory !== newCategory) {
+                            inventory[itemIndex].category = newCategory;
+                            
+                            // Show notification
+                            notification.textContent = `Moved ${inventory[itemIndex].name} to ${newCategory} category`;
+                            notification.classList.add('show');
+                            setTimeout(() => {
+                                notification.classList.remove('show');
+                            }, 3000);
+                            
+                            // Re-render inventory
+                            renderInventory();
+                        }
+                    }
+                    
+                    // Close the menu
+                    document.querySelectorAll('.item-menu').forEach(menu => {
+                        menu.style.display = 'none';
+                    });
+                }
+            });
+        }
+
+        // Start the app
+        init();
+
+        // Close recipe details modal
+        closeRecipeDetails.addEventListener('click', () => {
+            recipeDetailsModal.style.display = 'none';
+        });
+        
+        // Close modal if clicked outside the content
+        recipeDetailsModal.addEventListener('click', (e) => {
+            if (e.target === recipeDetailsModal) {
+                recipeDetailsModal.style.display = 'none';
+            }
+        });
+
+        // Utility function to increment quantity
+        window.incrementQuantity = function(id) {
+            const itemIndex = inventory.findIndex(item => item.id === id);
+            if (itemIndex !== -1) {
+                inventory[itemIndex].quantity++;
+                renderInventory();
+            }
+        };
+
+        // Function to display health level with stars
+        function displayHealthLevel(level) {
+            const fullStar = '★';
+            const emptyStar = '☆';
+            let stars = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                if (i <= level) {
+                    stars += fullStar;
+                } else {
+                    stars += emptyStar;
+                }
+            }
+            
+            return stars;
+        }
+
+        // Set up the Inspired by Avō section
+        function setupInspiredBySection() {
+            // Add event listeners to bubble buttons
+            document.querySelectorAll('.bubble-button').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const category = e.target.dataset.category;
+                    await showInspiredRecipes(category);
+                });
+            });
+            
+            // Custom prompt button
+            const generateCustomAvo = document.getElementById('generateCustomAvo');
+            const customAvoPrompt = document.getElementById('customAvoPrompt');
+            
+            generateCustomAvo.addEventListener('click', async () => {
+                const customPrompt = customAvoPrompt.value.trim();
+                if (customPrompt) {
+                    await showInspiredRecipes('custom', customPrompt);
+                } else {
+                    // Generate recipes based on time of day
+                    const hour = new Date().getHours();
+                    let timeBasedCategory;
+                    
+                    if (hour >= 5 && hour < 11) {
+                        timeBasedCategory = 'breakfast';
+                    } else if (hour >= 11 && hour < 16) {
+                        timeBasedCategory = 'lunch';
+                    } else {
+                        timeBasedCategory = 'dinner';
+                    }
+                    
+                    await showInspiredRecipes('time-based', timeBasedCategory);
+                }
+            });
+            
+            // Back button functionality
+            backToBubbles.addEventListener('click', () => {
+                inspirationRecipeContainer.style.display = 'none';
+                bubbleButtons.style.display = 'flex';
+                customAvoPrompt.value = ''; // Clear the custom prompt
+            });
+        }
+        
+        // Show inspired recipes for selected category or custom prompt
+        async function showInspiredRecipes(category, customPrompt = '') {
+            try {
+                inspirationRecipeContainer.style.display = 'block';
+                bubbleButtons.style.display = 'none';
+                
+                // Show loading state
+                inspirationRecipesElement.innerHTML = `
+                    <div style="text-align: center; padding: 2rem;">
+                        <p>Generating recipes...</p>
+                        <div style="height: 5px; width: 100%; background-color: #f0f0f0; margin: 10px 0;">
+                            <div style="height: 100%; width: 0%; background-color: var(--primary); transition: width 0.5s ease;" id="recipeProgress"></div>
+                        </div>
+                    </div>
+                `;
+                
+                let recipes;
+                if (category === 'custom') {
+                    recipes = await generateCustomRecipes(customPrompt);
+                } else if (category === 'time-based') {
+                    recipes = await generateTimeBasedRecipes(customPrompt); // customPrompt here contains 'breakfast', 'lunch', or 'dinner'
+                } else {
+                    recipes = await generateSimulatedInspiredRecipes(category);
+                }
+                
+                // Render the recipes
+                await renderInspiredRecipes(recipes, category, customPrompt);
+                
+            } catch (error) {
+                console.error('Error generating inspired recipes:', error);
+                
+                inspirationRecipesElement.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: #d9534f;">
+                        <p>Error generating recipes: ${error.message}</p>
+                        <p>Please try again later.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Generate custom recipes based on user prompt
+        async function generateCustomRecipes(prompt) {
+            // Build the prompt with user preferences
+            let fullPrompt = prompt;
+            
+            // Add cuisine preference if set
+            if (appSettings.preferredCuisine) {
+                fullPrompt = `${appSettings.preferredCuisine} style ${prompt}`;
+            }
+            
+            // Add dietary restrictions
+            const restrictions = [];
+            if (appSettings.dietaryRestrictions.vegetarian) restrictions.push('vegetarian');
+            if (appSettings.dietaryRestrictions.vegan) restrictions.push('vegan');
+            if (appSettings.dietaryRestrictions.glutenFree) restrictions.push('gluten-free');
+            if (appSettings.dietaryRestrictions.dairyFree) restrictions.push('dairy-free');
+            if (appSettings.dietaryRestrictions.nutFree) restrictions.push('nut-free');
+            
+            if (restrictions.length > 0) {
+                fullPrompt = `${fullPrompt} (${restrictions.join(', ')})`;
+            }
+            
+            // Here you would typically call your AI model with the enhanced prompt
+            // For now, we'll return simulated recipes
+            return [
+                {
+                    title: `Custom Recipe: ${fullPrompt}`,
+                    difficulty: 'Medium',
+                    prepTime: '30 mins',
+                    calories: Math.floor(Math.random() * 500) + 300,
+                    healthLevel: Math.floor(Math.random() * 3) + 3,
+                    description: `A delicious ${restrictions.length > 0 ? restrictions.join(', ') + ' ' : ''}recipe created based on your request for "${prompt}"`,
+                    ingredients: [
+                        { name: 'Ingredient 1', quantity: '1 cup' },
+                        { name: 'Ingredient 2', quantity: '2 tbsp' },
+                        { name: 'Ingredient 3', quantity: '3 pieces' }
+                    ]
+                }
+            ];
+        }
+        
+        // Generate recipes based on time of day
+        async function generateTimeBasedRecipes(timeOfDay) {
+            // Build the base prompt with time of day
+            let basePrompt = `${timeOfDay} recipes`;
+            
+            // Add cuisine preference if set
+            if (appSettings.preferredCuisine) {
+                basePrompt = `${appSettings.preferredCuisine} style ${basePrompt}`;
+            }
+            
+            // Add dietary restrictions
+            const restrictions = [];
+            if (appSettings.dietaryRestrictions.vegetarian) restrictions.push('vegetarian');
+            if (appSettings.dietaryRestrictions.vegan) restrictions.push('vegan');
+            if (appSettings.dietaryRestrictions.glutenFree) restrictions.push('gluten-free');
+            if (appSettings.dietaryRestrictions.dairyFree) restrictions.push('dairy-free');
+            if (appSettings.dietaryRestrictions.nutFree) restrictions.push('nut-free');
+            
+            if (restrictions.length > 0) {
+                basePrompt = `${basePrompt} (${restrictions.join(', ')})`;
+            }
+            
+            const recipesByTime = {
+                'breakfast': [
+                    {
+                        title: `${appSettings.preferredCuisine ? appSettings.preferredCuisine + ' Style ' : ''}Morning Energy Bowl`,
+                        difficulty: 'Easy',
+                        prepTime: '15 mins',
+                        calories: 350,
+                        healthLevel: 5,
+                        description: `Start your day with this nutritious and energizing ${restrictions.length > 0 ? restrictions.join(', ') + ' ' : ''}breakfast bowl.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Steel-cut oats' : 'Oats', quantity: '1 cup' },
+                            { name: 'Banana', quantity: '1 medium' },
+                            { name: 'Berries', quantity: '1/2 cup' },
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Maple syrup' : 'Honey', quantity: '1 tbsp' },
+                            { name: appSettings.dietaryRestrictions.dairyFree ? 'Almond milk' : 'Milk', quantity: '1 cup' }
+                        ]
+                    }
+                ],
+                'lunch': [
+                    {
+                        title: `${appSettings.preferredCuisine ? appSettings.preferredCuisine + ' Style ' : ''}Power Lunch`,
+                        difficulty: 'Medium',
+                        prepTime: '20 mins',
+                        calories: 450,
+                        healthLevel: 4,
+                        description: `A balanced ${restrictions.length > 0 ? restrictions.join(', ') + ' ' : ''}lunch to keep you energized throughout the afternoon.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Quinoa' : 'Brown rice', quantity: '1 cup' },
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Grilled tofu' : 'Grilled chicken', quantity: '6 oz' },
+                            { name: 'Mixed greens', quantity: '2 cups' },
+                            { name: 'Avocado', quantity: '1/2' }
+                        ]
+                    }
+                ],
+                'dinner': [
+                    {
+                        title: `${appSettings.preferredCuisine ? appSettings.preferredCuisine + ' Style ' : ''}Evening Meal`,
+                        difficulty: 'Medium',
+                        prepTime: '35 mins',
+                        calories: 550,
+                        healthLevel: 4,
+                        description: `A satisfying ${restrictions.length > 0 ? restrictions.join(', ') + ' ' : ''}dinner that won't weigh you down before bed.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Grilled portobello mushroom' : 'Salmon fillet', quantity: '6 oz' },
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Quinoa' : 'Brown rice', quantity: '1 cup' },
+                            { name: 'Asparagus', quantity: '8 spears' },
+                            { name: 'Lemon', quantity: '1' }
+                        ]
+                    }
+                ]
+            };
+            
+            return recipesByTime[timeOfDay] || [];
+        }
+        
+        // Generate simulated inspired recipes
+        function generateSimulatedInspiredRecipes(category) {
+            // Build the base prompt with category
+            let basePrompt = category;
+            
+            // Add cuisine preference if set
+            if (appSettings.preferredCuisine) {
+                basePrompt = `${appSettings.preferredCuisine} style ${basePrompt}`;
+            }
+            
+            // Add dietary restrictions
+            const restrictions = [];
+            if (appSettings.dietaryRestrictions.vegetarian) restrictions.push('vegetarian');
+            if (appSettings.dietaryRestrictions.vegan) restrictions.push('vegan');
+            if (appSettings.dietaryRestrictions.glutenFree) restrictions.push('gluten-free');
+            if (appSettings.dietaryRestrictions.dairyFree) restrictions.push('dairy-free');
+            if (appSettings.dietaryRestrictions.nutFree) restrictions.push('nut-free');
+            
+            if (restrictions.length > 0) {
+                basePrompt = `${basePrompt} (${restrictions.join(', ')})`;
+            }
+            
+            // Simulated recipes for different categories
+            const recipesByCategory = {
+                'body-builder': [
+                    {
+                        title: `${appSettings.preferredCuisine ? appSettings.preferredCuisine + ' Style ' : ''}High-Protein ${appSettings.dietaryRestrictions.vegan ? 'Tofu' : 'Chicken'} & ${appSettings.dietaryRestrictions.glutenFree ? 'Quinoa' : 'Rice'} Bowl`,
+                        difficulty: 'Medium',
+                        prepTime: '35 mins',
+                        calories: 520,
+                        healthLevel: 5,
+                        description: `A protein-packed bowl with ${appSettings.dietaryRestrictions.vegan ? 'grilled tofu' : 'grilled chicken'}, ${appSettings.dietaryRestrictions.glutenFree ? 'quinoa' : 'brown rice'}, and steamed vegetables, perfect for muscle recovery.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Firm tofu' : 'Chicken breast', quantity: '8 oz' },
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Quinoa' : 'Brown rice', quantity: '1 cup' },
+                            { name: 'Broccoli', quantity: '2 cups' },
+                            { name: 'Sweet potato', quantity: '1 medium' },
+                            { name: 'Olive oil', quantity: '1 tbsp' },
+                            { name: appSettings.dietaryRestrictions.dairyFree ? 'Coconut yogurt' : 'Greek yogurt', quantity: '1/4 cup' }
+                        ],
+                        instructions: 'Preheat oven to 400°F. Season and bake sweet potato for 25 mins. Cook rice or quinoa according to package. Cook protein with seasoning. Assemble all components in a bowl.'
+                    },
+                    {
+                        title: `Protein-Packed ${appSettings.dietaryRestrictions.vegan ? 'Lentil' : 'Turkey'} Meatballs`,
+                        difficulty: 'Medium',
+                        prepTime: '45 mins',
+                        calories: 480,
+                        healthLevel: 4,
+                        description: `Hearty ${appSettings.dietaryRestrictions.vegan ? 'lentil' : 'turkey'} meatballs packed with protein and served with whole grain pasta and vegetable sauce.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Green lentils, cooked' : 'Ground turkey', quantity: '1 lb' },
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Gluten-free pasta' : 'Whole grain pasta', quantity: '8 oz' },
+                            { name: 'Bell peppers', quantity: '2' },
+                            { name: 'Onions', quantity: '1 medium' },
+                            { name: 'Garlic', quantity: '3 cloves' },
+                            { name: 'Tomato sauce', quantity: '2 cups' }
+                        ],
+                        instructions: 'Mix protein with spices and form into balls. Bake at 375°F for 20-25 mins. While baking, prepare pasta and sauce with vegetables. Combine and serve.'
+                    }
+                ],
+                'weight-control': [
+                    {
+                        title: `Light ${appSettings.dietaryRestrictions.vegan ? 'Vegetable' : 'Chicken'} Stir-Fry`,
+                        difficulty: 'Easy',
+                        prepTime: '20 mins',
+                        calories: 320,
+                        healthLevel: 5,
+                        description: `A low-calorie stir-fry loaded with vegetables and lean protein, perfect for weight management goals.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Tempeh' : 'Chicken breast', quantity: '6 oz' },
+                            { name: 'Bell peppers', quantity: '2' },
+                            { name: 'Broccoli', quantity: '1 cup' },
+                            { name: 'Carrots', quantity: '2 medium' },
+                            { name: 'Snow peas', quantity: '1 cup' },
+                            { name: 'Low-sodium soy sauce', quantity: '2 tbsp' }
+                        ],
+                        instructions: 'Slice protein and vegetables thinly. Heat non-stick pan with minimal oil. Stir-fry protein until cooked, then add vegetables. Season with soy sauce and serve.'
+                    },
+                    {
+                        title: `Mediterranean ${appSettings.dietaryRestrictions.vegetarian ? 'Chickpea' : 'Fish'} Bowl`,
+                        difficulty: 'Medium',
+                        prepTime: '25 mins',
+                        calories: 380,
+                        healthLevel: 5,
+                        description: `A nutrient-dense Mediterranean bowl with ${appSettings.dietaryRestrictions.vegetarian ? 'protein-rich chickpeas' : 'omega-rich fish'} and fresh vegetables.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.vegetarian ? 'Chickpeas' : 'White fish fillet', quantity: appSettings.dietaryRestrictions.vegetarian ? '1 cup' : '6 oz' },
+                            { name: 'Cucumber', quantity: '1 medium' },
+                            { name: 'Cherry tomatoes', quantity: '1 cup' },
+                            { name: 'Red onion', quantity: '1/2' },
+                            { name: 'Olives', quantity: '1/4 cup' },
+                            { name: appSettings.dietaryRestrictions.dairyFree ? 'Tahini' : 'Feta cheese', quantity: '2 tbsp' }
+                        ],
+                        instructions: 'Prepare protein (cook fish or rinse chickpeas). Chop all vegetables. Combine in a bowl, drizzle with olive oil and lemon juice. Top with tahini or feta.'
+                    }
+                ],
+                'kids-nutrition': [
+                    {
+                        title: `Hidden Veggie ${appSettings.dietaryRestrictions.glutenFree ? 'Quinoa' : 'Pasta'} Sauce`,
+                        difficulty: 'Easy',
+                        prepTime: '30 mins',
+                        calories: 380,
+                        healthLevel: 4,
+                        description: `A kid-friendly ${appSettings.dietaryRestrictions.glutenFree ? 'quinoa bowl' : 'pasta dish'} with a sauce that sneaks in multiple vegetables without them knowing.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Quinoa' : 'Whole grain pasta', quantity: '8 oz' },
+                            { name: 'Carrots', quantity: '2 medium' },
+                            { name: 'Zucchini', quantity: '1 medium' },
+                            { name: 'Sweet potato', quantity: '1 small' },
+                            { name: 'Tomato sauce', quantity: '1 cup' },
+                            { name: appSettings.dietaryRestrictions.dairyFree ? 'Nutritional yeast' : 'Parmesan cheese', quantity: '2 tbsp' }
+                        ],
+                        instructions: 'Steam vegetables until soft. Blend with tomato sauce until smooth. Cook pasta or quinoa. Mix with sauce and top with cheese or nutritional yeast.'
+                    },
+                    {
+                        title: `Fun ${appSettings.dietaryRestrictions.vegetarian ? 'Bean' : 'Turkey'} Taco Cups`,
+                        difficulty: 'Medium',
+                        prepTime: '35 mins',
+                        calories: 420,
+                        healthLevel: 3,
+                        description: `Playful taco cups made with ${appSettings.dietaryRestrictions.glutenFree ? 'corn' : 'flour'} tortillas and filled with nutritious ingredients kids will love.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Corn tortillas' : 'Flour tortillas', quantity: '6 small' },
+                            { name: appSettings.dietaryRestrictions.vegetarian ? 'Black beans' : 'Ground turkey', quantity: appSettings.dietaryRestrictions.vegetarian ? '1 cup' : '8 oz' },
+                            { name: 'Bell peppers, diced small', quantity: '1' },
+                            { name: 'Corn kernels', quantity: '1/2 cup' },
+                            { name: 'Mild taco seasoning', quantity: '1 tbsp' },
+                            { name: appSettings.dietaryRestrictions.dairyFree ? 'Dairy-free cheese' : 'Cheddar cheese', quantity: '1/2 cup' }
+                        ],
+                        instructions: 'Press tortillas into muffin tin to form cups. Bake at 375°F for 10 mins. Cook protein with taco seasoning and vegetables. Fill cups with mixture and top with cheese. Bake 5 more minutes.'
+                    }
+                ],
+                'grandmoms-secret': [
+                    {
+                        title: `Classic ${appSettings.dietaryRestrictions.vegan ? 'Vegetable' : 'Chicken'} Pot Pie`,
+                        difficulty: 'Medium',
+                        prepTime: '1 hour',
+                        calories: 580,
+                        healthLevel: 3,
+                        description: `A comforting homemade pot pie with flaky crust and hearty filling just like grandma used to make.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Gluten-free pie crust' : 'Pie crust', quantity: '2' },
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Plant-based chunks' : 'Chicken thighs', quantity: '1 lb' },
+                            { name: 'Carrots', quantity: '2 medium' },
+                            { name: 'Celery', quantity: '2 stalks' },
+                            { name: 'Peas', quantity: '1 cup' },
+                            { name: appSettings.dietaryRestrictions.dairyFree ? 'Coconut milk' : 'Heavy cream', quantity: '1/2 cup' }
+                        ],
+                        instructions: 'Cook protein with vegetables until tender. Make sauce with broth and cream. Combine filling in pie dish, top with crust. Bake at 375°F for 30-35 mins until golden.'
+                    },
+                    {
+                        title: `Old-Fashioned ${appSettings.dietaryRestrictions.vegan ? 'Vegetable' : 'Beef'} Stew`,
+                        difficulty: 'Easy',
+                        prepTime: '1.5 hours',
+                        calories: 520,
+                        healthLevel: 4,
+                        description: `A rich, slow-cooked stew with tender ${appSettings.dietaryRestrictions.vegan ? 'vegetables and lentils' : 'beef chunks'} and root vegetables.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Brown lentils' : 'Beef chuck', quantity: appSettings.dietaryRestrictions.vegan ? '1 cup' : '1.5 lbs' },
+                            { name: 'Potatoes', quantity: '3 medium' },
+                            { name: 'Carrots', quantity: '4 medium' },
+                            { name: 'Onion', quantity: '1 large' },
+                            { name: 'Garlic', quantity: '4 cloves' },
+                            { name: 'Vegetable broth', quantity: '4 cups' }
+                        ],
+                        instructions: 'Brown protein (if using meat). Add vegetables and broth. Simmer on low heat for 1-1.5 hours until everything is tender. Season with herbs and serve hot.'
+                    }
+                ],
+                'everything-fried': [
+                    {
+                        title: `Crispy ${appSettings.dietaryRestrictions.vegan ? 'Cauliflower' : 'Chicken'} Fritters`,
+                        difficulty: 'Medium',
+                        prepTime: '45 mins',
+                        calories: 520,
+                        healthLevel: 2,
+                        description: `Golden-brown, crispy fritters that are perfect for dipping and indulging.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Cauliflower florets' : 'Chicken tenders', quantity: '1 lb' },
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Gluten-free flour' : 'All-purpose flour', quantity: '1 cup' },
+                            { name: 'Paprika', quantity: '1 tbsp' },
+                            { name: 'Garlic powder', quantity: '1 tsp' },
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Plant milk' : 'Buttermilk', quantity: '1 cup' },
+                            { name: 'Vegetable oil', quantity: '2 cups' }
+                        ],
+                        instructions: 'Mix flour with seasonings. Dip protein in milk then flour mixture. Heat oil to 350°F. Fry until golden brown (3-4 mins per side). Drain on paper towels.'
+                    },
+                    {
+                        title: `${appSettings.preferredCuisine ? appSettings.preferredCuisine + ' Style ' : ''}Crispy ${appSettings.dietaryRestrictions.glutenFree ? 'Rice' : 'Potato'} Croquettes`,
+                        difficulty: 'Medium',
+                        prepTime: '40 mins',
+                        calories: 480,
+                        healthLevel: 2,
+                        description: `Perfectly crispy outside, soft inside croquettes that make a delicious snack or side dish.`,
+                        ingredients: [
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Cooked rice' : 'Mashed potatoes', quantity: '2 cups' },
+                            { name: appSettings.dietaryRestrictions.vegan ? 'Vegan cheese' : 'Cheddar cheese', quantity: '1/2 cup' },
+                            { name: 'Green onions', quantity: '3' },
+                            { name: appSettings.dietaryRestrictions.glutenFree ? 'Rice flour' : 'Breadcrumbs', quantity: '1 cup' },
+                            { name: 'Herbs and spices', quantity: 'To taste' },
+                            { name: 'Vegetable oil', quantity: '2 cups' }
+                        ],
+                        instructions: 'Mix base ingredient with cheese and onions. Form into cylinders. Roll in flour/breadcrumbs. Heat oil to 360°F. Fry until golden brown (2-3 mins). Drain well before serving.'
+                    }
+                ]
+            };
+            
+            return recipesByCategory[category] || [];
+        }
+
+        // Generate inspired recipes with AI
+        async function generateInspiredRecipes(category, model) {
+            let endpoint, apiKey, requestBody;
+            
+            // Prepare the prompt based on the category
+            const promptText = `Create 3 unique recipes that fit the "${formatCategoryName(category)}" category. 
+
+For each recipe, provide:
+1. A catchy title
+2. Difficulty level (Easy, Medium, or Hard)
+3. Preparation time
+4. Approximate calories per serving
+5. Health level on a scale of 1-5 (where 5 is very healthy and 1 is least healthy)
+6. A brief description of the dish
+7. A list of ingredients with quantities
+
+Format your response as a JSON array of recipe objects. Each object should have "title", "difficulty", "prepTime", "calories", "healthLevel", "description", and "ingredients" properties.
+For ingredients, include an array of objects with "name" and "quantity" properties.
+
+Here's what each category means:
+- Body Builder: High-protein meals focused on muscle growth and recovery
+- Weight Control: Low-calorie, nutrient-dense options for weight management
+- Kids Nutrition: Kid-friendly meals that pack in hidden vegetables and nutrients
+- Grandmom's Secret: Traditional, comfort food recipes with a homemade touch
+- Everything Fried: Indulgent, crispy fried foods as a special treat
+
+Example format:
+[
+  {
+    "title": "High-Protein Chicken & Quinoa Bowl",
+    "difficulty": "Medium",
+    "prepTime": "35 mins",
+    "calories": 520,
+    "healthLevel": 5,
+    "description": "A protein-packed bowl with grilled chicken, quinoa, and steamed vegetables, perfect for muscle recovery.",
+    "ingredients": [
+      {"name": "Chicken breast", "quantity": "8 oz"},
+      {"name": "Quinoa", "quantity": "1 cup"},
+      {"name": "Broccoli", "quantity": "2 cups"}
+    ]
+  }
+]`;
+            
+            if (model === 'gemini') {
+                endpoint = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent';
+                apiKey = appSettings.geminiApiKey;
+                
+                requestBody = {
+                    contents: [{
+                        parts: [{ text: promptText }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        topK: 32,
+                        topP: 1,
+                        maxOutputTokens: 4096,
+                    }
+                };
+                
+                try {
+                    const response = await fetch(`${endpoint}?key=${apiKey}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`API Error (${response.status}): ${errorText}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    // Extract the text from the response
+                    const content = result.candidates[0].content;
+                    const responseText = content.parts[0].text;
+                    
+                    // Find the JSON part in the response
+                    let jsonMatch;
+                    if (responseText.includes('[') && responseText.includes(']')) {
+                        jsonMatch = responseText.substring(
+                            responseText.indexOf('['),
+                            responseText.lastIndexOf(']') + 1
+                        );
+                    }
+                    
+                    // Parse the generated recipes
+                    let recipes = [];
+                    if (jsonMatch) {
+                        try {
+                            recipes = JSON.parse(jsonMatch);
+                        } catch (e) {
+                            console.error('Error parsing JSON response:', e);
+                            throw new Error('Could not parse the recipes generated by Gemini.');
+                        }
+                    } else {
+                        throw new Error('No valid recipes found in the Gemini response.');
+                    }
+                    
+                    return recipes;
+                } catch (error) {
+                    console.error('Error calling Gemini API:', error);
+                    throw error;
+                }
+            } else if (model === 'deepseek') {
+                endpoint = 'https://api.deepseek.com/v1/chat/completions';
+                apiKey = appSettings.deepseekApiKey;
+                
+                requestBody = {
+                    model: "deepseek-chat",
+                    messages: [
+                        {
+                            role: "system",
+                            content: "You are a helpful AI assistant specializing in recipe creation."
+                        },
+                        {
+                            role: "user",
+                            content: promptText
+                        }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 4096
+                };
+                
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${apiKey}`
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`API Error (${response.status}): ${errorText}`);
+                    }
+                    
+                    const result = await response.json();
+                    
+                    // Extract the text from the response
+                    const responseText = result.choices[0].message.content;
+                    
+                    // Find the JSON part in the response
+                    let jsonMatch;
+                    if (responseText.includes('[') && responseText.includes(']')) {
+                        jsonMatch = responseText.substring(
+                            responseText.indexOf('['),
+                            responseText.lastIndexOf(']') + 1
+                        );
+                    }
+                    
+                    // Parse the generated recipes
+                    let recipes = [];
+                    if (jsonMatch) {
+                        try {
+                            recipes = JSON.parse(jsonMatch);
+                        } catch (e) {
+                            console.error('Error parsing JSON response:', e);
+                            throw new Error('Could not parse the recipes generated by DeepSeek.');
+                        }
+                    } else {
+                        throw new Error('No valid recipes found in the DeepSeek response.');
+                    }
+                    
+                    return recipes;
+                } catch (error) {
+                    console.error('Error calling DeepSeek API:', error);
+                    throw error;
+                }
+            } else {
+                // Fallback to simulated recipes
+                return generateSimulatedInspiredRecipes(category);
+            }
+        }
+
+        // Render shopping list
+        function renderShoppingList() {
+            if (shoppingList.length === 0) {
+                noShoppingItems.style.display = 'block';
+                shoppingItems.innerHTML = '';
+                return;
+            }
+            
+            noShoppingItems.style.display = 'none';
+            shoppingItems.innerHTML = '';
+            
+            shoppingList.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                
+                itemElement.innerHTML = `
+                    <div class="inventory-item-details">
+                        <span class="inventory-item-name">${item.name}</span>
+                        <span class="inventory-item-meta">${item.quantity}</span>
+                    </div>
+                    <div style="display: flex; gap: 5px; align-items: center;">
+                        <button class="btn btn-secondary" style="padding: 0.4rem;" onclick="removeFromShoppingList(${item.id})">Remove</button>
+                    </div>
+                `;
+                
+                shoppingItems.appendChild(itemElement);
+            });
+        }
+        
+        // Add to shopping list
+        function addToShoppingList(name, quantity) {
+            // Check if item already exists
+            const existingIndex = shoppingList.findIndex(item => 
+                item.name.toLowerCase() === name.toLowerCase()
+            );
+            
+            if (existingIndex !== -1) {
+                // Update quantity
+                shoppingList[existingIndex].quantity = quantity;
+            } else {
+                // Add new item
+                const newItem = {
+                    id: Date.now(), // Use timestamp as unique ID
+                    name: name,
+                    quantity: quantity
+                };
+                
+                shoppingList.push(newItem);
+            }
+            
+            // Save to localStorage
+            localStorage.setItem('mealPlannerShoppingList', JSON.stringify(shoppingList));
+            
+            // Re-render shopping list
+            renderShoppingList();
+        }
+        
+        // Remove from shopping list
+        window.removeFromShoppingList = function(id) {
+            const index = shoppingList.findIndex(item => item.id === id);
+            
+            if (index !== -1) {
+                // Remove item
+                const removedItem = shoppingList.splice(index, 1)[0];
+                
+                // Save to localStorage
+                localStorage.setItem('mealPlannerShoppingList', JSON.stringify(shoppingList));
+                
+                // Re-render shopping list
+                renderShoppingList();
+                
+                // Show notification
+                notification.textContent = `Removed ${removedItem.name} from shopping list`;
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+        };
+        
+        // Add shopping item button
+        addShoppingItemBtn.addEventListener('click', () => {
+            // Create modal for adding shopping items
+            const modalHtml = `
+                <div id="addShoppingItemModal" style="display: block; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); z-index: 1000;">
+                    <div style="background-color: white; max-width: 500px; margin: 100px auto; padding: 2rem; border-radius: 8px;">
+                        <h2 style="margin-bottom: 1rem;">Add Item to Shopping List</h2>
+                        <form id="addShoppingItemForm">
+                            <div style="margin-bottom: 1rem;">
+                                <label for="shoppingItemName" style="display: block; margin-bottom: 0.5rem;">Item Name</label>
+                                <input type="text" id="shoppingItemName" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" required>
+                            </div>
+                            <div style="margin-bottom: 1.5rem;">
+                                <label for="shoppingItemQuantity" style="display: block; margin-bottom: 0.5rem;">Quantity</label>
+                                <input type="text" id="shoppingItemQuantity" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 4px;" placeholder="e.g., 2 lbs, 3 units">
+                            </div>
+                            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                                <button type="button" id="cancelAddShoppingItem" class="btn btn-secondary">Cancel</button>
+                                <button type="submit" class="btn btn-accent">Add Item</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            // Append modal to body
+            const modalContainer = document.createElement('div');
+            modalContainer.innerHTML = modalHtml;
+            document.body.appendChild(modalContainer);
+            
+            // Cancel button
+            document.getElementById('cancelAddShoppingItem').addEventListener('click', () => {
+                document.body.removeChild(modalContainer);
+            });
+            
+            // Form submission
+            document.getElementById('addShoppingItemForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('shoppingItemName').value.trim();
+                const quantity = document.getElementById('shoppingItemQuantity').value.trim();
+                
+                if (name) {
+                    addToShoppingList(name, quantity);
+                    
+                    // Show notification
+                    notification.textContent = `Added ${name} to shopping list`;
+                    notification.classList.add('show');
+                    setTimeout(() => {
+                        notification.classList.remove('show');
+                    }, 3000);
+                    
+                    // Close modal
+                    document.body.removeChild(modalContainer);
+                }
+            });
+            
+            // Focus on name input
+            document.getElementById('shoppingItemName').focus();
+        });
+        
+        // Load shopping list from localStorage
+        function loadShoppingList() {
+            const savedShoppingList = localStorage.getItem('mealPlannerShoppingList');
+            if (savedShoppingList) {
+                shoppingList.length = 0; // Clear current list
+                shoppingList.push(...JSON.parse(savedShoppingList));
+            }
+        }
+
+        // Format category name for display
+        function formatCategoryName(category) {
+            const words = category.split('-');
+            return words.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+        }
+        
+        // Render inspired recipes
+        async function renderInspiredRecipes(recipes, category, customPrompt = '') {
+            inspirationRecipesElement.innerHTML = '';
+            
+            // Add category title
+            const titleEl = document.createElement('h3');
+            titleEl.style.marginBottom = '1rem';
+            titleEl.style.color = 'var(--primary-dark)';
+            
+            if (category === 'custom') {
+                titleEl.textContent = `Recipes for "${customPrompt}"`;
+            } else if (category === 'time-based') {
+                titleEl.textContent = `${formatCategoryName(customPrompt)} Recipes`;
+            } else {
+                titleEl.textContent = `${formatCategoryName(category)} Recipes`;
+            }
+            
+            inspirationRecipesElement.appendChild(titleEl);
+            
+            // Search for recipe images using Tavily if API key is available
+            const searchRecipeImagesPromises = [];
+            
+            if (appSettings.tavilyApiKey) {
+                recipes.forEach(recipe => {
+                    if (!recipe.imageUrl) {
+                        const promise = searchRecipeImage(recipe.title)
+                            .then(imageUrl => {
+                                recipe.imageUrl = imageUrl;
+                            })
+                            .catch(error => {
+                                console.warn(`Could not find image for ${recipe.title}:`, error);
+                                recipe.imageUrl = 'https://via.placeholder.com/400x300?text=No+Image+Found';
+                            });
+                        searchRecipeImagesPromises.push(promise);
+                    }
+                });
+            }
+            
+            // Render recipes after searching for images or immediately if no image search needed
+            await Promise.allSettled(searchRecipeImagesPromises);
+            
+            // Render each recipe
+            recipes.forEach(recipe => {
+                const recipeEl = document.createElement('div');
+                recipeEl.className = 'recipe-card';
+                
+                // Prepare ingredients list
+                let ingredientsList = '<div class="recipe-ingredients">';
+                recipe.ingredients.forEach(ingredient => {
+                    const isExpiring = ingredient.expiringSoon === true;
+                    ingredientsList += `<div class="${isExpiring ? 'expiring-soon' : ''}">${ingredient.name}${ingredient.quantity ? ' (' + ingredient.quantity + ')' : ''}</div>`;
+                });
+                ingredientsList += '</div>';
+                
+                // Add image if available
+                let imageHtml = '';
+                if (recipe.imageUrl) {
+                    imageHtml = `<img src="${recipe.imageUrl}" alt="${recipe.title}" class="recipe-image">`;
+                }
+                
+                recipeEl.innerHTML = `
+                    ${imageHtml}
+                    <div class="recipe-header">
+                        <div class="recipe-title">${recipe.title}</div>
+                    </div>
+                    <div class="recipe-meta">
+                        <span>${recipe.difficulty || 'Medium'}</span>
+                        <span>${recipe.prepTime || '30 mins'}</span>
+                        <span>${recipe.calories || 'N/A'} cal</span>
+                        <span>Health: ${displayHealthLevel(recipe.healthLevel || 3)}</span>
+                    </div>
+                    ${ingredientsList}
+                    <div>
+                        <p>${recipe.instructions || recipe.description}</p>
+                    </div>
+                    <div class="recipe-actions">
+                        <button class="btn btn-secondary view-recipe" data-id="${recipe.id || recipe.title.replace(/\s+/g, '-').toLowerCase()}">View Full Recipe</button>
+                        <button class="btn shopping-list-btn" data-recipe='${JSON.stringify(recipe).replace(/'/g, "&#39;")}'>Shopping List</button>
+                    </div>
+                `;
+                
+                inspirationRecipesElement.appendChild(recipeEl);
+            });
+            
+            // Add event listeners for shopping list buttons
+            document.querySelectorAll('.shopping-list-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const recipeData = JSON.parse(e.target.dataset.recipe);
+                    
+                    // Check if shopping list already exists for this recipe
+                    const recipeEl = e.target.closest('.recipe-card');
+                    let shoppingListEl = recipeEl.querySelector('.shopping-list-container');
+                    
+                    if (shoppingListEl) {
+                        // Toggle visibility
+                        shoppingListEl.style.display = shoppingListEl.style.display === 'none' ? 'block' : 'none';
+                        return;
+                    }
+                    
+                    // Create shopping list for just this recipe
+                    shoppingListEl = document.createElement('div');
+                    shoppingListEl.className = 'shopping-list-container';
+                    shoppingListEl.style.marginTop = '1rem';
+                    
+                    let shoppingListHtml = `
+                        <h4 style="margin-bottom: 0.5rem; color: var(--primary-dark);">Shopping List</h4>
+                        <div class="shopping-list">
+                    `;
+                    
+                    if (!recipeData.ingredients || recipeData.ingredients.length === 0) {
+                        shoppingListHtml += `<p style="text-align: center; padding: 0.5rem;">No items needed</p>`;
+                    } else {
+                        recipeData.ingredients.forEach(item => {
+                            shoppingListHtml += `
+                                <div class="shopping-list-item">
+                                    <span>${item.name}</span>
+                                    <span>${item.quantity || ''}</span>
+                                </div>
+                            `;
+                        });
+                    }
+                    
+                    shoppingListHtml += `</div>`;
+                    
+                    // Add button to add all ingredients to global shopping list
+                    shoppingListHtml += `
+                        <div style="margin-top: 0.5rem; text-align: right;">
+                            <button class="btn btn-secondary add-to-shopping" data-recipe='${JSON.stringify(recipeData).replace(/'/g, "&#39;")}'>
+                                Add to Shopping List
+                            </button>
+                        </div>
+                    `;
+                    
+                    shoppingListEl.innerHTML = shoppingListHtml;
+                    
+                    // Insert after recipe actions
+                    const actionsEl = recipeEl.querySelector('.recipe-actions');
+                    actionsEl.after(shoppingListEl);
+                    
+                    // Add event listener to the add-to-shopping button
+                    shoppingListEl.querySelector('.add-to-shopping').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const recipeData = JSON.parse(e.target.dataset.recipe);
+                        
+                        // Add all ingredients to global shopping list
+                        if (recipeData.ingredients && recipeData.ingredients.length > 0) {
+                            recipeData.ingredients.forEach(ing => {
+                                addToShoppingList(ing.name, ing.quantity || '');
+                            });
+                            
+                            // Show notification
+                            notification.textContent = `Added ingredients for "${recipeData.title}" to shopping list`;
+                            notification.classList.add('show');
+                            setTimeout(() => {
+                                notification.classList.remove('show');
+                            }, 3000);
+                        }
+                    });
+                });
+            });
+            
+            // Add event listeners for view recipe buttons
+            document.querySelectorAll('.view-recipe').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const recipeId = e.target.dataset.id;
+                    
+                    // Find the recipe
+                    const recipe = recipes.find(r => r.id === recipeId || r.title.replace(/\s+/g, '-').toLowerCase() === recipeId);
+                    
+                    if (recipe) {
+                        // Show recipe details modal
+                        showInspiredRecipeDetails(recipe);
+                    }
+                });
+            });
+        }
+        
+        // Show recipe details for inspired recipes
+        function showInspiredRecipeDetails(recipe) {
+            // Set basic recipe details
+            recipeDetailsTitle.textContent = recipe.title;
+            recipeDetailsDifficulty.textContent = recipe.difficulty || 'Medium';
+            recipeDetailsPrepTime.textContent = recipe.prepTime || '30 mins';
+            recipeDetailsCalories.textContent = recipe.calories ? `${recipe.calories} cal` : 'N/A';
+            recipeDetailsHealth.textContent = displayHealthLevel(recipe.healthLevel || 3);
+            
+            // Render ingredients
+            recipeDetailsIngredients.innerHTML = '';
+            if (recipe.ingredients && recipe.ingredients.length > 0) {
+                const list = document.createElement('ul');
+                recipe.ingredients.forEach(ing => {
+                    const item = document.createElement('li');
+                    item.textContent = `${ing.name}${ing.quantity ? ' (' + ing.quantity + ')' : ''}`;
+                    list.appendChild(item);
+                });
+                recipeDetailsIngredients.appendChild(list);
+            }
+            
+            // For instructions, use either instructions or description
+            const instructions = recipe.instructions || recipe.description || 'No instructions available';
+            
+            // Check if we need to generate detailed instructions
+            if (instructions.length < 100 && (appSettings.recipeGenMethod === 'gemini' || appSettings.recipeGenMethod === 'deepseek')) {
+                // Show loading indicator
+                recipeDetailsInstructions.style.display = 'none';
+                recipeDetailsLoading.style.display = 'flex';
+                recipeDetailsProgress.textContent = 'Generating detailed instructions...';
+                
+                // Generate detailed instructions with AI
+                generateDetailedInstructions(recipe)
+                    .then(detailedInstructions => {
+                        // Hide loading indicator
+                        recipeDetailsLoading.style.display = 'none';
+                        recipeDetailsInstructions.style.display = 'block';
+                        
+                        // Display detailed instructions
+                        recipeDetailsInstructions.innerHTML = detailedInstructions;
+                    })
+                    .catch(error => {
+                        // Hide loading indicator and show error
+                        recipeDetailsLoading.style.display = 'none';
+                        recipeDetailsInstructions.style.display = 'block';
+                        
+                        // Fallback to basic instructions
+                        recipeDetailsInstructions.innerHTML = `<p>${instructions}</p>`;
+                        
+                        // Show error notification
+                        notification.textContent = `Could not generate detailed instructions: ${error.message}`;
+                        notification.classList.add('show');
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 5000);
+                    });
+            } else {
+                // Use existing instructions
+                recipeDetailsLoading.style.display = 'none';
+                recipeDetailsInstructions.style.display = 'block';
+                recipeDetailsInstructions.innerHTML = `<p>${instructions}</p>`;
+            }
+            
+            // Show the modal
+            recipeDetailsModal.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 
